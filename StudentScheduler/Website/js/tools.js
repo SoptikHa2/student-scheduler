@@ -1,4 +1,18 @@
-﻿function checkForLSAlert() {
+﻿latestTeacherUpdate = -1;
+
+/* Test function */
+function registerModalCallbacks() {
+    $('.teacher-click').on('click', function (e) {
+        var but = e.currentTarget;
+        latestTeacherUpdate = parseInt(but.getAttribute('name'));
+    })
+
+    $('#set-hours-teacher').on('click', function () {
+        alert(latestTeacherUpdate);
+    })
+}
+
+function checkForLSAlert() {
     if (localStorage["showLSAlert"] == "false")
         $('#localStorageAlert').remove();
 
