@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+
+<html lang="cs" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta lang="cs" />
+    <title>Plánovač studentských hodin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <!-- Material design -->
+    <link rel="stylesheet" href="css/mdb.min.css" />
+
+    <!-- Javascript -->
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/mdb.min.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/bridge/bridge.min.js"></script>
+    <script src="js/bridge/bridge.console.min.js"></script>
+    <script src="js/bridge/bridge.meta.min.js"></script>
+    <script src="js/bridge/StudentScheduler.min.js"></script>
+    <script src="js/bridge/StudentScheduler.meta.min.js"></script>
+</head>
+<body onload="checkForLSAlert();">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark indigo">
+            <a class="navbar-brand" href="index.html">Plánovač</a>
+        </nav>
+    </header>
+
+    <noscript>
+        <div class="alert alert-danger" role="alert">
+            Vypadáto, že máte vypnutý JavaScript, nebo ho váš prohlížeč neumí.
+            Zapněte JavaScript, nebo si pořiďte lepší prohlížeč. Můžete zkusit třeba
+            <a href="https://www.google.com/chrome/index.html">Google Chrome</a>.
+            <br />
+            <hr />
+            <strong style="font-size: 1.2em;">Bez JavaScriptu tato stránka nefunguje!</strong>
+        </div>
+    </noscript>
+
+    <div class="alert alert-info alert-dismissible fade show" id="localStorageAlert" role="alert">
+        <p>
+            Používáme LocalStorage. To je něco jako <a href="https://cs.wikipedia.org/wiki/HTTP_cookie">Cookie</a>.
+            Používáme to k tomu, abychom věděli, že jste četli tuto zprávu a abyste mohli ukládat své rozpracované plány a později je editovat.
+            <br />
+            Pokud stránku okamžitě neopustíte, souhlasíte s tím, že je můžeme LocalStorage používat.
+        </p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <main class="mt-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-4 mb-4">
+                    <h3 class="h3">Učitelé</h3>
+                    <div id="teachers">
+                        <div class="card card-body">
+                            <p><strong>Pavel Braha</strong>, nastaveno 28 hodin</p>
+                            <!-- atribut [id] = ID ucitele -->
+                            <button id="0" class="btn btn-primary set-teacher">Nastavit hodiny</button>
+                        </div>
+                        <br />
+                        <div class="card">
+                            <button id="add-teacher" class="btn btn-primary" data-toggle="modal" data-target="#newTeacherModal">Přidat učitele</button>
+                        </div>
+                    </div>
+                    <hr />
+
+
+
+
+
+                    <h3 class="h3">Žáci</h3>
+                    <div id="students">
+                        <div class="card card-body">
+                            <p><strong>Petr Šťastný</strong>, nastaveno 8 hodin</p>
+                            <!-- atribut [id] = ID zaka -->
+                            <button class="btn btn-primary set-student" id="0">Nastavit hodiny</button>
+                        </div>
+                        <br />
+                        <div class="card">
+                            <button id="add-student" class="btn btn-primary" data-toggle="modal" data-target="#newStudentModal">Přidat žáka</button>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <button id="save" class="btn btn-success">Uložit</button>
+                    <button class="btn btn-danger" data-toggle="modal" data-target="#newRemoveModal">Vymazat</button>
+                </div>
+
+                <!-- Tabulka -->
+
+                <div class="col-md-8 mb-4">
+                    <button class="btn btn-primary" id="run">Spustit</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- MODALS -->
+    <div>
+        <!-- New teacher modal -->
+        <div class="modal fade" id="newTeacherModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nový učitel</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="teacher-name">Jméno</label>
+                            <input type="text" class="form-control" id="teacher-name" placeholder="Josef Novák" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="add-teacher">Uložit</button>
+                        <button type="button" class="btn btn-grey" data-dismiss="modal">Zrušit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New student modal -->
+        <div class="modal fade" id="newStudentModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nový student</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="student-name">Jméno</label>
+                            <input type="text" class="form-control" id="student-name" placeholder="Josef Novák" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="add-student">Uložit</button>
+                        <button type="button" class="btn btn-grey" data-dismiss="modal">Zrušit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remove modal -->
+        <div class="modal fade" id="newRemoveModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Zahodit a jít zpět do menu</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert">
+                            <p>Tímto zahodíte všechny změny a zcela odstraníte tento plán. Přijdete o něj navždy. Opravdu chcete pokračovat?</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" id="delete">Vymazat</button>
+                        <button type="button" class="btn btn-grey" data-dismiss="modal">Zrušit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
