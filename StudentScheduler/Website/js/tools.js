@@ -29,5 +29,5 @@ function loadSavedPlanes() {
 }
 
 function setButtonHrefs() {
-    $('#create-new-plan-button').on('click', function () { window.location.href = 'window.location.href=plan.html'; });
+    $('.create-new-plan-button').on('click', function () { window.location.href = 'plan.html'; });
 }
