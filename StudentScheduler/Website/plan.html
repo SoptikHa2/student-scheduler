@@ -207,27 +207,27 @@
                         <div class="card card-body">
                             <h4>Pondělí</h4>
                             <p id="teacher-time-monday">Není nastaveno</p>
-                            <button id="teacher-time-monday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="teacher-time-monday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Úterý</h4>
                             <p id="teacher-time-tuesday">Není nastaveno</p>
-                            <button id="teacher-time-tuesday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="teacher-time-tuesday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Středa</h4>
                             <p id="teacher-time-wednesday">Není nastaveno</p>
-                            <button id="teacher-time-wednesday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="teacher-time-wednesday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Čtvrtek</h4>
                             <p id="teacher-time-thursday">Není nastaveno</p>
-                            <button id="teacher-time-thursday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="teacher-time-thursday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Pátek</h4>
                             <p id="teacher-time-friday">Není nastaveno</p>
-                            <button id="teacher-time-friday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="teacher-time-friday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -252,27 +252,27 @@
                         <div class="card card-body">
                             <h4>Pondělí</h4>
                             <p id="student-time-monday">Není nastaveno</p>
-                            <button id="student-time-monday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="student-time-monday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Úterý</h4>
                             <p id="student-time-tuesday">Není nastaveno</p>
-                            <button id="student-time-tuesday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="student-time-tuesday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Středa</h4>
                             <p id="student-time-wednesday">Není nastaveno</p>
-                            <button id="student-time-wednesday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="student-time-wednesday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Čtvrtek</h4>
                             <p id="student-time-thursday">Není nastaveno</p>
-                            <button id="student-time-thursday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="student-time-thursday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                         <div class="card card-body">
                             <h4>Pátek</h4>
                             <p id="student-time-friday">Není nastaveno</p>
-                            <button id="student-time-friday-set" class="btn btn-primary">Nastavit</button>
+                            <button id="student-time-friday-set" class="btn btn-primary" data-toggle="modal" data-target="#GetHoursModal">Nastavit</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -283,6 +283,41 @@
             </div>
         </div>
 
+        <!-- GetHourModal --> <!-- TODO: Pri nacteni modalu si zjistit kdo to volal (ucitel/student), jeho ID a jake hodnoty ma u tohohle time editu -->
+        <div class="modal fade" id="GetHoursModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nastavit čas</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        V tento den má [jmeno studenta/ucitele] čas
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <label for="get-time-from-hh">Od </label>
+                                <input type="number" id="get-time-from-hh" min="0" max="23" style="width: 2em; padding-left: 1em;"/>
+                                <label for="get-time-from-mm"> : </label>
+                                <input type="number" id="get-time-from-mm" min="0" max="59" style="width: 2em; padding-left: 1em;"/>                                
+                            </div>
+                            <div class="form-group">
+                                <label for="get-time-to-hh">Do </label>
+                                <input type="number" id="get-time-to-hh" min="0" max="23" style="width: 2em; padding-left: 1em;" />
+                                <label for="get-time-to-mm"> : </label>
+                                <input type="number" id="get-time-to-mm" min="0" max="59" style="width: 2em; padding-left: 1em;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="set-time-hours">Uložit</button>
+                        <button type="button" class="btn btn-danger" id="set-time-hours-cancel">Odstranit čas</button>
+                        <button type="button" class="btn btn-grey" data-dismiss="modal">Zrušit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
