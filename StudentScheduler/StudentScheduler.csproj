@@ -37,6 +37,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AppLogic\App.cs" />
+    <Compile Include="AppLogic\Plan.cs" />
+    <Compile Include="AppLogic\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +79,7 @@
     <Content Include="Website\js\bridge\StudentScheduler.meta.js" />
     <Content Include="Website\js\bridge\StudentScheduler.meta.min.js" />
     <Content Include="Website\js\bridge\StudentScheduler.min.js" />
+    <Content Include="Website\js\tools.js" />
     <Content Include="Website\js\jquery-3.2.1.min.js" />
     <Content Include="Website\js\mdb.min.js" />
     <Content Include="Website\js\Newtonsoft.Json.dll" />
@@ -84,6 +87,7 @@
     <Content Include="Website\js\popper.min.js" />
     <Content Include="Website\js\StudentScheduler.dll" />
     <Content Include="Website\js\StudentScheduler.pdb" />
+    <Content Include="Website\plan.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Website\img\" />
