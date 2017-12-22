@@ -14,7 +14,6 @@ namespace StudentScheduler.AppLogic
         public bool[] daysAvailable;
         public int[] minutesFromAvailable;
         public int[] minutesToAvailable;
-        public bool[] availableMinutes;
         public int assignedConvertedMinutesFrom;
 
         public User(string name, bool[] daysAvailable, int[] minutesFromAvailable, int[] minutesToAvailable)
@@ -23,26 +22,24 @@ namespace StudentScheduler.AppLogic
             this.daysAvailable = daysAvailable;
             this.minutesFromAvailable = minutesFromAvailable;
             this.minutesToAvailable = minutesToAvailable;
-            assignedConvertedMinutesFrom = 0;
-            availableMinutes = new bool[60 * 24];
+            assignedConvertedMinutesFrom = -1;
+        }
 
-            // For all days
-            for (int i = 0; i < 5; i++)
-            {
-                if (!daysAvailable[i])
-                    continue;
+        public string GetHoursInDay(int dayIndex)
+        {
+            if (dayIndex < 0 || dayIndex >= 5)
+                throw new ArgumentException("Parameter MUST BE in range [0; 5). Value: " + dayIndex, "dayIndex");
 
-                // Go for every 5 minutes
-                int c = 0;
-                for (int m = 0; m < 60 * 24; m += 5)
-                {
-                    int currentminute = i * 24 * 60;
-                    if (minutesFromAvailable[i] <= currentminute &&
-                        minutesToAvailable[i] >= currentminute + hourLength)
-                        availableMinutes[c] = true;
-                    c++;
-                }
-            }
+            if (!daysAvailable[dayIndex])
+                return "Není nastaveno";
+
+            int minutesF = minutesFromAvailable[dayIndex];
+            int minutesT = minutesToAvailable[dayIndex];
+
+            int hoursF = (int)Math.Floor(minutesF / 60d);
+            int hoursT = (int)Math.Floor(minutesT / 60d);
+
+            return $"Od {hoursF}:{(minutesF - hoursF * 60).ToString("###")} do {hoursT}:{(minutesT - hoursT * 60).ToString("##")}";
         }
     }
 }

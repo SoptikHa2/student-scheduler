@@ -1,18 +1,4 @@
-﻿latestTeacherUpdate = -1;
-
-/* Test function */
-function registerModalCallbacks() {
-    $('.teacher-click').on('click', function (e) {
-        var but = e.currentTarget;
-        latestTeacherUpdate = parseInt(but.getAttribute('name'));
-    })
-
-    $('#set-hours-teacher').on('click', function () {
-        alert(latestTeacherUpdate);
-    })
-}
-
-function checkForLSAlert() {
+﻿function checkForLSAlert() {
     if (localStorage["showLSAlert"] == "false")
         $('#localStorageAlert').remove();
 
@@ -44,4 +30,24 @@ function loadSavedPlanes() {
 
 function setButtonHrefs() {
     $('.create-new-plan-button').on('click', function () { window.location.href = 'plan.html'; });
+}
+
+function dontAllowNumberInputsOutOfRange() {
+    var inps = $('input[type="number"]');
+    inps.on("blur", function (e) {
+        let min = parseInt(e.target.min);
+        let val = parseInt(e.target.value);
+        let max = parseInt(e.target.max);
+
+        console.log(min);
+        console.log(val);
+        console.log(max);
+
+        if (val < min)
+            val = min;
+        if (val > max)
+            val = max;
+
+        e.target.value = val;
+    });
 }
