@@ -14,6 +14,7 @@ namespace StudentScheduler
         private static bool lastSetWasTeacher;
         private static int lastSetId;
         private static int lastSelectedDay;
+        private static int dayId;
 
         public static void Main()
         {
@@ -34,6 +35,16 @@ namespace StudentScheduler
             buts = Gcl("student-click");
             for (int i = 0; i < buts.Length; i++)
                 buts[i].OnClick += (e) => { EditHoursClick(buts[i], false); };
+
+            buts = Gcl("but-time-set");
+            for (int i = 0; i < buts.Length; i++)
+            {
+                int c = i;
+                buts[i].OnClick += (e) => { SomeDayEditHoursClick(buts[c]); };
+            }
+            Gid("set-time-hours").OnClick = (e) => { SaveHourChange(); };
+
+            Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); };
         }
 
         private static void AddNewTeacher(HTMLElement sender)
@@ -105,7 +116,70 @@ namespace StudentScheduler
             Gid("setTimeModalInfoText").InnerHTML = "V tento den má " + selectedCollection[lastSetId].name + " čas";
         }
 
+        private static void SomeDayEditHoursClick(object sender)
+        {
+            dayId = int.Parse((sender as HTMLElement).GetAttribute("name"));
 
+            var getTimeFromHH = Gid("get-time-from-hh") as HTMLInputElement;
+            var getTimeFromMM = Gid("get-time-from-mm") as HTMLInputElement;
+            var getTimeToHH = Gid("get-time-to-hh") as HTMLInputElement;
+            var getTimeToMM = Gid("get-time-to-mm") as HTMLInputElement;
+
+            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
+
+            var usr = collection[lastSetId];
+
+
+            if (usr.minutesFromAvailable[dayId] > 0)
+            {
+                int hoursFrom = (int)Math.Floor(usr.minutesFromAvailable[dayId] / 60d);
+                getTimeFromHH.Value = hoursFrom.ToString();
+                getTimeFromMM.Value = (usr.minutesFromAvailable[dayId] - hoursFrom * 60).ToString();
+            }
+            else
+            {
+                getTimeFromHH.Value = "";
+                getTimeFromMM.Value = "";
+            }
+
+
+            if (usr.minutesToAvailable[dayId] > 0)
+            {
+                int hoursTo = (int)Math.Floor(usr.minutesToAvailable[dayId] / 60d);
+                getTimeToHH.Value = hoursTo.ToString();
+                getTimeToMM.Value = (usr.minutesToAvailable[dayId] - hoursTo * 60d).ToString();
+            }
+            else
+            {
+                getTimeToHH.Value = "";
+                getTimeToMM.Value = "";
+            }
+        }
+
+        private static void SaveHourChange()
+        {
+            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
+
+            int from = (int)((Gid("get-time-from-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-from-mm") as HTMLInputElement).ValueAsNumber);
+            int to = (int)((Gid("get-time-to-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-to-mm") as HTMLInputElement).ValueAsNumber);
+
+            if (from + 45 > to)
+            {
+                RemoveHourInDay();
+                return;
+            }
+
+            collection[lastSetId].minutesFromAvailable[dayId] = from;
+            collection[lastSetId].minutesToAvailable[dayId] = to;
+        }
+
+        private static void RemoveHourInDay()
+        {
+            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
+
+            collection[lastSetId].minutesFromAvailable[dayId] = 0;
+            collection[lastSetId].minutesToAvailable[dayId] = 0;
+        }
 
 
         private static HTMLElement Gid(string id) => Document.GetElementById(id);

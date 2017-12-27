@@ -39,10 +39,6 @@ function dontAllowNumberInputsOutOfRange() {
         let val = parseInt(e.target.value);
         let max = parseInt(e.target.max);
 
-        console.log(min);
-        console.log(val);
-        console.log(max);
-
         if (val < min)
             val = min;
         if (val > max)
