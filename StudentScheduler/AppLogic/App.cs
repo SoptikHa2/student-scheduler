@@ -96,7 +96,7 @@ namespace StudentScheduler
             setHours.SetAttribute("data-toggle", "modal");
             setHours.SetAttribute("data-target", "#setHoursModal");
             setHours.InnerHTML = "Nastavit hodiny";
-            setHours.OnClick += (e) => { EditHoursClick(setHours, true); };
+            setHours.OnClick += (e) => { EditHoursClick(setHours, false); };
             card.AppendChild(setHours);
             div.AppendChild(card);
 
