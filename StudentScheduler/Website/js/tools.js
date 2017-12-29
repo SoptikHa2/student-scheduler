@@ -47,3 +47,9 @@ function dontAllowNumberInputsOutOfRange() {
         e.target.value = val;
     });
 }
+
+function addScrollbarToInnerModal() {
+    $('#GetHoursModal').on('hidden.bs.modal', function () {
+        $('body').addClass('modal-open');
+    });
+}

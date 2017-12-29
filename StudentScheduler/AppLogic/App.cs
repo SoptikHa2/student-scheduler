@@ -16,6 +16,8 @@ namespace StudentScheduler
         private static int lastSelectedDay;
         private static int dayId;
 
+        private static string[] days = { "monday", "tuesday", "wednesday", "thursday", "friday" };
+
         public static void Main()
         {
 
@@ -42,9 +44,9 @@ namespace StudentScheduler
                 int c = i;
                 buts[i].OnClick += (e) => { SomeDayEditHoursClick(buts[c]); };
             }
-            Gid("set-time-hours").OnClick = (e) => { SaveHourChange(); };
+            Gid("set-time-hours").OnClick = (e) => { SaveHourChange(); UpdateListOfDays(); };
 
-            Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); };
+            Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); UpdateListOfDays(); };
         }
 
         private static void AddNewTeacher(HTMLElement sender)
@@ -114,6 +116,8 @@ namespace StudentScheduler
             Gid("set-time-friday").InnerHTML = selectedCollection[lastSetId].GetHoursInDay(4);
 
             Gid("setTimeModalInfoText").InnerHTML = "V tento den má " + selectedCollection[lastSetId].name + " čas";
+
+            UpdateListOfDays();
         }
 
         private static void SomeDayEditHoursClick(object sender)
@@ -181,6 +185,34 @@ namespace StudentScheduler
             collection[lastSetId].minutesToAvailable[dayId] = 0;
         }
 
+        private static void UpdateListOfDays()
+        {
+            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
+
+            // Set to all days: if there is at least 45 minutes between two times: return times in format ["HH:MM - HH:MM"], else, return "Není nastaveno"
+            for (int i = 0; i < 5; i++)
+            {
+                Gid("set-time-" + days[i]).InnerHTML = collection[lastSetId].minutesToAvailable[i] - collection[lastSetId].minutesFromAvailable[i] < 45 ? "Není nastaveno" :
+                                               MinutesToHoursAndMinutes(collection[lastSetId].minutesFromAvailable[i]) + " - " + MinutesToHoursAndMinutes(collection[lastSetId].minutesToAvailable[i]);
+            }
+        }
+
+
+
+        private static string MinutesToHoursAndMinutes(int minutes)
+        {
+            int hours = (int)Math.Floor(minutes / 60d);
+            string ret = MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(hours) + ":";
+            return ret + MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself((minutes - hours * 60));
+        }
+
+        private static string MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(int number)
+        {
+            string num = number.ToString();
+            if (num.Length == 1)
+                num = "0" + num;
+            return num;
+        }
 
         private static HTMLElement Gid(string id) => Document.GetElementById(id);
         private static HTMLElement[] Gcl(string cls) => Document.Body.GetElementsByClassName(cls).ToArray();
