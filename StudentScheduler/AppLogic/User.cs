@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace StudentScheduler.AppLogic
 {
-    class User
+    public class User
     {
         public string name;
         public bool[] daysAvailable;
         public int[] minutesFromAvailable;
         public int[] minutesToAvailable;
-        public int assignedConvertedMinutesFrom;
+        public int assignedMinutes = -1;
+        public int assignedDay = -1;
+        public bool assigned = false;
 
         public User(string name, bool[] daysAvailable, int[] minutesFromAvailable, int[] minutesToAvailable)
         {
@@ -20,7 +22,6 @@ namespace StudentScheduler.AppLogic
             this.daysAvailable = daysAvailable;
             this.minutesFromAvailable = minutesFromAvailable;
             this.minutesToAvailable = minutesToAvailable;
-            assignedConvertedMinutesFrom = -1;
         }
 
         public string GetHoursInDay(int dayIndex)

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace StudentScheduler.AppLogic
 {
-    class Plan
+    public class Plan
     {
         public const int lessonLength = 50; // 45 + 5 pause
-
+        private const int breakAfterLessons = 3; // Break after 3 lessons
+        private const int breakAfterLessonsLength = 45; // Let's just sleep a bit 
 
         public List<User> students;
         public List<User> teachers;
@@ -21,7 +22,7 @@ namespace StudentScheduler.AppLogic
         }
 
         // NOTE: I assume there is only one teacher
-        public object Calc()
+        public void Calc()
         {
             // HOW THIS WORKS:
 
@@ -47,7 +48,60 @@ namespace StudentScheduler.AppLogic
 
 
 
-            return null;
+            if (teachers.Count != 1 || students.Count == 0)
+                return;
+
+            // First stage
+            TryToPosAllStudents();
+        }
+
+        private void TryToPosAllStudents()
+        {
+            // Assuming I have just one teacher
+            User teacher = teachers[0];
+
+            for (int day = 0; day < 5; day++)
+            {
+                // For all days, skip day if either all students or teacher are busy
+
+                // Get all students that have at least 50mins time today and still don't have anything assigned
+                var studentsForThisDay = students.Where(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day] >= 50 && !x.assigned).ToArray();
+
+                if (teacher.minutesToAvailable[day] - teacher.minutesFromAvailable[day] < 50 || // If the teacher don't have full 50 minutes of time
+                   studentsForThisDay.Length == 0) // Or if there is no student with at least 50 mintues of time
+                    continue;
+
+
+
+                // Go for all the teacher's minutes today
+
+                int hoursElapsed = 0;
+                for (int minute = teacher.minutesFromAvailable[day]; minute <= teacher.minutesToAvailable[day]; minute += 5)
+                {
+                    if (hoursElapsed == breakAfterLessons)
+                    {
+                        // I assume there is no need to repeat the break multiple times in a single day
+                        hoursElapsed = int.MinValue;
+
+                        minute += breakAfterLessonsLength; // TODO: Should I substract 5?
+                        continue;
+                    }
+
+                    var studentsInThisTerm = studentsForThisDay.Where(student => student.minutesFromAvailable[day] <= minute &&
+                                                                      student.minutesToAvailable[day] >= teacher.minutesToAvailable[day]);
+
+                    // Choose student with the least time left
+                    User chosenStudent = studentsInThisTerm.OrderBy(student => student.minutesToAvailable[day] - minute).FirstOrDefault();
+
+                    if (chosenStudent == null)
+                        continue;
+
+                    chosenStudent.assignedMinutes = minute;
+                    chosenStudent.assignedDay = day;
+                    chosenStudent.assigned = true;
+                }
+            }
         }
     }
 }
+
