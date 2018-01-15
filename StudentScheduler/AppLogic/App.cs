@@ -74,6 +74,9 @@ namespace StudentScheduler
             div.AppendChild(card);
 
             input.Value = "";
+
+            // Allow only one teacher
+            Gid("add-new-teacher-modal-button").Remove();
         }
 
         private static void AddNewStudent(HTMLElement sender)
@@ -91,7 +94,7 @@ namespace StudentScheduler
             card.ClassName = "card card-body";
             card.InnerHTML += "<p><strong>" + newStudentName + "</strong></p>";
             HTMLButtonElement setHours = new HTMLButtonElement();
-            setHours.Name = (plan.teachers.Count - 1).ToString();
+            setHours.Name = (plan.students.Count - 1).ToString();
             setHours.ClassName = "btn btn-primary teacher-click";
             setHours.SetAttribute("data-toggle", "modal");
             setHours.SetAttribute("data-target", "#setHoursModal");
@@ -167,7 +170,7 @@ namespace StudentScheduler
             int from = (int)((Gid("get-time-from-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-from-mm") as HTMLInputElement).ValueAsNumber);
             int to = (int)((Gid("get-time-to-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-to-mm") as HTMLInputElement).ValueAsNumber);
 
-            if (from + 45 > to)
+            if (from + Plan.lessonLength > to)
             {
                 RemoveHourInDay();
                 return;
@@ -189,10 +192,10 @@ namespace StudentScheduler
         {
             var collection = lastSetWasTeacher ? plan.teachers : plan.students;
 
-            // Set to all days: if there is at least 45 minutes between two times: return times in format ["HH:MM - HH:MM"], else, return "Není nastaveno"
+            // Set to all days: if there is at least {Plan.lessonLength} (50) minutes between two times: return times in format ["HH:MM - HH:MM"], else, return "Není nastaveno"
             for (int i = 0; i < 5; i++)
             {
-                Gid("set-time-" + days[i]).InnerHTML = collection[lastSetId].minutesToAvailable[i] - collection[lastSetId].minutesFromAvailable[i] < 45 ? "Není nastaveno" :
+                Gid("set-time-" + days[i]).InnerHTML = collection[lastSetId].minutesToAvailable[i] - collection[lastSetId].minutesFromAvailable[i] < Plan.lessonLength ? "Není nastaveno" :
                                                MinutesToHoursAndMinutes(collection[lastSetId].minutesFromAvailable[i]) + " - " + MinutesToHoursAndMinutes(collection[lastSetId].minutesToAvailable[i]);
             }
         }

@@ -8,8 +8,6 @@ namespace StudentScheduler.AppLogic
 {
     class User
     {
-        public const int hourLength = 45;
-
         public string name;
         public bool[] daysAvailable;
         public int[] minutesFromAvailable;
