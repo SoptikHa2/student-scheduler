@@ -20,7 +20,6 @@ namespace StudentScheduler
 
         public static void Main()
         {
-
             // TODO: load?
             plan = new Plan();
 
@@ -47,6 +46,8 @@ namespace StudentScheduler
             Gid("set-time-hours").OnClick = (e) => { SaveHourChange(); UpdateListOfDays(); };
 
             Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); UpdateListOfDays(); };
+
+            Gid("run").OnClick = (e) => { plan.Calc(); Gid("output").InnerHTML = plan.GenerateHTML(); };
         }
 
         private static void AddNewTeacher(HTMLElement sender)
@@ -205,11 +206,10 @@ namespace StudentScheduler
         private static string MinutesToHoursAndMinutes(int minutes)
         {
             int hours = (int)Math.Floor(minutes / 60d);
-            string ret = MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(hours) + ":";
-            return ret + MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself((minutes - hours * 60));
+            return hours.ToString("00") + ":" + (minutes - hours * 60).ToString("00");
         }
 
-        private static string MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(int number)
+        private static string MyNumberToStringWithAtLeastTwoDigitsFormat(int number)
         {
             string num = number.ToString();
             if (num.Length == 1)

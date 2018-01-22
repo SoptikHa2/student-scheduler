@@ -24,8 +24,8 @@
     <script src="js/bridge/bridge.min.js"></script>
     <script src="js/bridge/bridge.console.min.js"></script>
     <script src="js/bridge/bridge.meta.min.js"></script>
-    <script src="js/bridge/StudentScheduler.min.js"></script>
-    <script src="js/bridge/StudentScheduler.meta.min.js"></script>
+    <script src="js/bridge/StudentScheduler.js"></script>
+    <script src="js/bridge/StudentScheduler.meta.js"></script>
 </head>
 <body onload="checkForLSAlert(); dontAllowNumberInputsOutOfRange(); addScrollbarToInnerModal();">
     <header>
@@ -99,7 +99,7 @@
                     <h3 class="h3">Akce</h3>
                     <button class="btn btn-primary" id="run" style="width: 100%;">Vygenerovat rozvrh</button>
                     <small class="form-text text-muted">
-                        Varování: může to trvat opravdu dlouho.
+                        Může to chvíli trvat, hlavně u většího počtu žáků.
                         Neukončujte skript, i když vás prohlížeč
                         upozorní, že skript neodpovídá.
                     </small>
@@ -112,8 +112,37 @@
 
 
                 <!-- Tabulka -->
-                <div class="col-md-8 mb-4">
-
+                <div class="col-md-8 mb-4" id="output">
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Pondělí</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Úterý</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Středa</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Čtvrtek</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Pátek</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,7 +164,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="teacher-name">Jméno</label>
-                            <input type="text" class="form-control" id="teacher-name" placeholder="Josef Novák" />
+                            <input type="text" class="form-control" id="teacher-name" placeholder="" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -159,7 +188,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="student-name">Jméno</label>
-                            <input type="text" class="form-control" id="student-name" placeholder="Josef Novák" />
+                            <input type="text" class="form-control" id="student-name" placeholder="" />
                         </div>
                     </div>
                     <div class="modal-footer">

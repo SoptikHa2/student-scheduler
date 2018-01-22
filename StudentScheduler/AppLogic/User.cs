@@ -38,7 +38,7 @@ namespace StudentScheduler.AppLogic
             int hoursF = (int)Math.Floor(minutesF / 60d);
             int hoursT = (int)Math.Floor(minutesT / 60d);
 
-            return $"Od {hoursF}:{(minutesF - hoursF * 60).ToString("###")} do {hoursT}:{(minutesT - hoursT * 60).ToString("##")}";
+            return $"Od {hoursF}:{(minutesF - hoursF * 60).ToString("00")} do {hoursT}:{(minutesT - hoursT * 60).ToString("00")}";
         }
     }
 }
