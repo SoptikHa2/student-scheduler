@@ -24,10 +24,10 @@
     <script src="js/bridge/bridge.min.js"></script>
     <script src="js/bridge/bridge.console.min.js"></script>
     <script src="js/bridge/bridge.meta.min.js"></script>
-    <script src="js/bridge/StudentScheduler.min.js"></script>
-    <script src="js/bridge/StudentScheduler.meta.min.js"></script>
+    <script src="js/bridge/StudentScheduler.js"></script>
+    <script src="js/bridge/StudentScheduler.meta.js"></script>
 </head>
-<body onload="checkForLSAlert(); dontAllowNumberInputsOutOfRange(); addScrollbarToInnerModal();">
+<body onload="checkForLSAlert(); secureFakeNumberInputs(); addScrollbarToInnerModal();">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark indigo">
             <a class="navbar-brand" href="index.html">Plánovač</a>
@@ -71,7 +71,7 @@
                     </div>
                     <br />
                     <div class="card">
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#newTeacherModal">Přidat učitele</button>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#newTeacherModal" id="add-new-teacher-modal-button">Přidat učitele</button>
                     </div>
                     <hr />
 
@@ -99,7 +99,7 @@
                     <h3 class="h3">Akce</h3>
                     <button class="btn btn-primary" id="run" style="width: 100%;">Vygenerovat rozvrh</button>
                     <small class="form-text text-muted">
-                        Varování: může to trvat opravdu dlouho.
+                        Může to chvíli trvat, hlavně u většího počtu žáků.
                         Neukončujte skript, i když vás prohlížeč
                         upozorní, že skript neodpovídá.
                     </small>
@@ -112,8 +112,37 @@
 
 
                 <!-- Tabulka -->
-                <div class="col-md-8 mb-4">
-
+                <div class="col-md-8 mb-4" id="output">
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Pondělí</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Úterý</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Středa</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Čtvrtek</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="card card-body">
+                            <h3>Pátek</h3>
+                            <i>Na tento den není nic naplánovaného</i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,7 +164,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="teacher-name">Jméno</label>
-                            <input type="text" class="form-control" id="teacher-name" placeholder="Josef Novák" />
+                            <input type="text" class="form-control" id="teacher-name" placeholder="" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -159,7 +188,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="student-name">Jméno</label>
-                            <input type="text" class="form-control" id="student-name" placeholder="Josef Novák" />
+                            <input type="text" class="form-control" id="student-name" placeholder="" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -250,22 +279,22 @@
                     <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Pokud chcete nastavit čas v tomto dni, měl by zde být úsek dlouhý
-                            alespoň 45 minut. V opačném případě nebude nastavení času pro tento
+                            alespoň 50 minut. V opačném případě nebude nastavení času pro tento
                             den uloženo.
                         </div>
                         <p id="setTimeModalInfoText">Načítání...</p>
                         <div class="form-inline">
                             <div class="form-group">
                                 <label for="get-time-from-hh">Od </label>
-                                <input type="number" id="get-time-from-hh" min="0" max="23" style="width: 2em; padding-left: 1em;" />
+                                <input type="text" pattern="[0-9]*" id="get-time-from-hh" class="fakeNumberInputHours" min="0" max="23" style="width: 2em; padding-left: 1em;" />
                                 <label for="get-time-from-mm"> : </label>
-                                <input type="number" id="get-time-from-mm" min="0" max="59" style="width: 2em; padding-left: 1em;" />
+                                <input type="text" pattern="[0-9]*" id="get-time-from-mm" class="fakeNumberInputMinutes" min="0" max="59" style="width: 2em; padding-left: 1em;" />
                             </div>
                             <div class="form-group">
                                 <label for="get-time-to-hh">Do </label>
-                                <input type="number" id="get-time-to-hh" min="0" max="23" style="width: 2em; padding-left: 1em;" />
+                                <input type="text" pattern="[0-9]*" id="get-time-to-hh" class="fakeNumberInputHours" style="width: 2em; padding-left: 1em;" />
                                 <label for="get-time-to-mm"> : </label>
-                                <input type="number" id="get-time-to-mm" min="0" max="59" style="width: 2em; padding-left: 1em;" />
+                                <input type="text" pattern="[0-9]*" id="get-time-to-mm" class="fakeNumberInputMinutes" min="0" max="59" style="width: 2em; padding-left: 1em;" />
                             </div>
                         </div>
                     </div>

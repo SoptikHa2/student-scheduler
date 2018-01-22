@@ -53,3 +53,28 @@ function addScrollbarToInnerModal() {
         $('body').addClass('modal-open');
     });
 }
+
+function secureFakeNumberInputs() {
+    var inputs = document.getElementsByClassName("fakeNumberInputHours");
+    for (let i = 0; i < inputs.length; i++) {
+        inputs[i].addEventListener("input", function (event) {
+
+            let value = inputs[i].value;
+            if (value < 0 || value >= 24 || isNaN(value))
+                inputs[i].value = "";
+        });
+
+    }
+
+
+    var inputs2 = document.getElementsByClassName("fakeNumberInputMinutes");
+    for (let i = 0; i < inputs2.length; i++) {
+        inputs2[i].addEventListener("input", function (event) {
+
+            let value = inputs2[i].value;
+            if (value < 0 || value >= 60 || isNaN(value))
+                inputs2[i].value = "";
+        });
+
+    }
+}

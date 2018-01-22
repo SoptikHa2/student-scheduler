@@ -20,7 +20,6 @@ namespace StudentScheduler
 
         public static void Main()
         {
-
             // TODO: load?
             plan = new Plan();
 
@@ -47,6 +46,8 @@ namespace StudentScheduler
             Gid("set-time-hours").OnClick = (e) => { SaveHourChange(); UpdateListOfDays(); };
 
             Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); UpdateListOfDays(); };
+
+            Gid("run").OnClick = (e) => { plan.Calc(); Gid("output").InnerHTML = plan.GenerateHTML(); };
         }
 
         private static void AddNewTeacher(HTMLElement sender)
@@ -74,6 +75,9 @@ namespace StudentScheduler
             div.AppendChild(card);
 
             input.Value = "";
+
+            // Allow only one teacher
+            Gid("add-new-teacher-modal-button").Remove();
         }
 
         private static void AddNewStudent(HTMLElement sender)
@@ -91,7 +95,7 @@ namespace StudentScheduler
             card.ClassName = "card card-body";
             card.InnerHTML += "<p><strong>" + newStudentName + "</strong></p>";
             HTMLButtonElement setHours = new HTMLButtonElement();
-            setHours.Name = (plan.teachers.Count - 1).ToString();
+            setHours.Name = (plan.students.Count - 1).ToString();
             setHours.ClassName = "btn btn-primary teacher-click";
             setHours.SetAttribute("data-toggle", "modal");
             setHours.SetAttribute("data-target", "#setHoursModal");
@@ -162,19 +166,23 @@ namespace StudentScheduler
 
         private static void SaveHourChange()
         {
-            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
-
-            int from = (int)((Gid("get-time-from-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-from-mm") as HTMLInputElement).ValueAsNumber);
-            int to = (int)((Gid("get-time-to-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-to-mm") as HTMLInputElement).ValueAsNumber);
-
-            if (from + 45 > to)
+            try
             {
-                RemoveHourInDay();
-                return;
-            }
+                var collection = lastSetWasTeacher ? plan.teachers : plan.students;
 
-            collection[lastSetId].minutesFromAvailable[dayId] = from;
-            collection[lastSetId].minutesToAvailable[dayId] = to;
+                int from = (int)(int.Parse((Gid("get-time-from-hh") as HTMLInputElement).Value) * 60 + int.Parse((Gid("get-time-from-mm") as HTMLInputElement).Value));
+                int to = (int)(int.Parse((Gid("get-time-to-hh") as HTMLInputElement).Value) * 60 + int.Parse((Gid("get-time-to-mm") as HTMLInputElement).Value));
+
+                if (from + Plan.lessonLength > to)
+                {
+                    RemoveHourInDay();
+                    return;
+                }
+
+                collection[lastSetId].minutesFromAvailable[dayId] = from;
+                collection[lastSetId].minutesToAvailable[dayId] = to;
+            }
+            catch { }
         }
 
         private static void RemoveHourInDay()
@@ -189,10 +197,10 @@ namespace StudentScheduler
         {
             var collection = lastSetWasTeacher ? plan.teachers : plan.students;
 
-            // Set to all days: if there is at least 45 minutes between two times: return times in format ["HH:MM - HH:MM"], else, return "Není nastaveno"
+            // Set to all days: if there is at least {Plan.lessonLength} (50) minutes between two times: return times in format ["HH:MM - HH:MM"], else, return "Není nastaveno"
             for (int i = 0; i < 5; i++)
             {
-                Gid("set-time-" + days[i]).InnerHTML = collection[lastSetId].minutesToAvailable[i] - collection[lastSetId].minutesFromAvailable[i] < 45 ? "Není nastaveno" :
+                Gid("set-time-" + days[i]).InnerHTML = collection[lastSetId].minutesToAvailable[i] - collection[lastSetId].minutesFromAvailable[i] < Plan.lessonLength ? "Není nastaveno" :
                                                MinutesToHoursAndMinutes(collection[lastSetId].minutesFromAvailable[i]) + " - " + MinutesToHoursAndMinutes(collection[lastSetId].minutesToAvailable[i]);
             }
         }
@@ -202,11 +210,10 @@ namespace StudentScheduler
         private static string MinutesToHoursAndMinutes(int minutes)
         {
             int hours = (int)Math.Floor(minutes / 60d);
-            string ret = MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(hours) + ":";
-            return ret + MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself((minutes - hours * 60));
+            return hours.ToString("00") + ":" + (minutes - hours * 60).ToString("00");
         }
 
-        private static string MyNumberToStringWithAtLeastTwoDigitsFormatBecauseBridgeDotNetCannotDoThatSimpleTaskItself(int number)
+        private static string MyNumberToStringWithAtLeastTwoDigitsFormat(int number)
         {
             string num = number.ToString();
             if (num.Length == 1)
