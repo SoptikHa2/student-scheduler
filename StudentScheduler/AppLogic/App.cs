@@ -166,19 +166,23 @@ namespace StudentScheduler
 
         private static void SaveHourChange()
         {
-            var collection = lastSetWasTeacher ? plan.teachers : plan.students;
-
-            int from = (int)((Gid("get-time-from-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-from-mm") as HTMLInputElement).ValueAsNumber);
-            int to = (int)((Gid("get-time-to-hh") as HTMLInputElement).ValueAsNumber * 60 + (Gid("get-time-to-mm") as HTMLInputElement).ValueAsNumber);
-
-            if (from + Plan.lessonLength > to)
+            try
             {
-                RemoveHourInDay();
-                return;
-            }
+                var collection = lastSetWasTeacher ? plan.teachers : plan.students;
 
-            collection[lastSetId].minutesFromAvailable[dayId] = from;
-            collection[lastSetId].minutesToAvailable[dayId] = to;
+                int from = (int)(int.Parse((Gid("get-time-from-hh") as HTMLInputElement).Value) * 60 + int.Parse((Gid("get-time-from-mm") as HTMLInputElement).Value));
+                int to = (int)(int.Parse((Gid("get-time-to-hh") as HTMLInputElement).Value) * 60 + int.Parse((Gid("get-time-to-mm") as HTMLInputElement).Value));
+
+                if (from + Plan.lessonLength > to)
+                {
+                    RemoveHourInDay();
+                    return;
+                }
+
+                collection[lastSetId].minutesFromAvailable[dayId] = from;
+                collection[lastSetId].minutesToAvailable[dayId] = to;
+            }
+            catch { }
         }
 
         private static void RemoveHourInDay()
