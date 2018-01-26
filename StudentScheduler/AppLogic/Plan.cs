@@ -11,6 +11,7 @@ namespace StudentScheduler.AppLogic
         public const int lessonLength = 50; // 45 + 5 pause
         private const int breakAfterLessons = 3; // Break after 3 lessons
         private const int breakAfterLessonsLength = 15; // Let's just sleep a bit 
+        private int[] breakAfterLessonsStart = new int[] { int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue };
 
         public List<User> students;
         public List<User> teachers;
@@ -41,10 +42,12 @@ namespace StudentScheduler.AppLogic
 
             for (int day = 0; day < 5; day++)
             {
+                int possedStudentsToday = 0;
+
                 s += $"<div class=\"row\"><div class=\"card card-body\"><h3>{days[day]}</h3>";
                 // <div class="card card-body">Petr (10:00 - 10:50)</div>
 
-                var pssday = posStudents.Where(x => x.assignedDay == day).ToArray();
+                var pssday = posStudents.Where(x => x.assignedDay == day).OrderBy(x => x.assignedMinutes).ToArray();
 
                 if (pssday.Length == 0)
                     s += "<i>Na tento den není nic naplánovaného</i>";
@@ -52,6 +55,21 @@ namespace StudentScheduler.AppLogic
                 for (int i = 0; i < pssday.Length; i++)
                 {
                     User current = pssday[i];
+
+                    // Insert break
+                    if (possedStudentsToday == breakAfterLessons)
+                    {
+                        int breakFrom = (int)Math.Floor(breakAfterLessonsStart[day] / 60d);
+                        int breakTo = (int)Math.Floor((breakAfterLessonsStart[day] + breakAfterLessonsLength) / 60d);
+
+                        string BreakHFrom = breakFrom.ToString("00") + ":" + (breakAfterLessonsStart[day] - breakFrom * 60).ToString("00");
+                        string BreakHTo = breakTo.ToString("00") + ":" + (breakAfterLessonsStart[day] + breakAfterLessonsLength - breakTo * 60).ToString("00");
+
+                        s += $"<div class=\"card card-body\" style=\"display: inline;\"><span style=\"font-style: italic;\">Přestávka</span> ({BreakHFrom} - {BreakHTo})</div>";
+
+                    }
+
+
                     int hoursFrom = (int)Math.Floor(current.assignedMinutes / 60d);
                     int hoursTo = (int)Math.Floor((current.assignedMinutes + lessonLength) / 60d);
 
@@ -60,6 +78,8 @@ namespace StudentScheduler.AppLogic
 
                     s += $"<div class=\"card card-body\">{current.name} (" +
                         $"{hFrom} - {hTo})</div>";
+
+                    possedStudentsToday++;
                 }
 
                 s += "</div></div>";
@@ -108,6 +128,8 @@ namespace StudentScheduler.AppLogic
 
             // First stage
             TryToPosAllStudentsVer2();
+            // Second stage
+            PosNotPossedStudents();
         }
 
         private void TryToPosAllStudentsVer2()
@@ -123,7 +145,7 @@ namespace StudentScheduler.AppLogic
                                             .OrderBy(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day]).ToArray();
 
                 int possedHours = 0;
-                int minutePossed = -1;
+                int minuteBreak = -1;
 
                 for (int i = 0; i < studentsToday.Length; i++)
                 {
@@ -133,8 +155,17 @@ namespace StudentScheduler.AppLogic
 
                     for (int minute = studentsToday[i].minutesFromAvailable[day]; minute <= studentsToday[i].minutesToAvailable[day]; minute += 5)
                     {
+                        if (teacher.minutesFromAvailable[day] > minute)
+                        {
+                            minute = teacher.minutesFromAvailable[day] - 5;
+                            continue;
+                        }
+
+                        if (teacher.minutesToAvailable[day] < minute)
+                            break;
+
                         // If break
-                        if (minute >= minutePossed && minute <= minutePossed + breakAfterLessonsLength)
+                        if (minute >= minuteBreak && minute <= minuteBreak + breakAfterLessonsLength)
                             continue;
 
                         var studentsInThisTimeFrame = studentsToday.Where(x => x.assigned && x.assignedDay == day && x.assignedMinutes >= minute - lessonLength && x.assignedMinutes <= minute + lessonLength);
@@ -142,19 +173,58 @@ namespace StudentScheduler.AppLogic
                         if (studentsInThisTimeFrame.Count() > 0)
                             continue;
 
+                        possedHours++;
+
                         studentsToday[i].assigned = true;
                         studentsToday[i].assignedDay = day;
                         studentsToday[i].assignedMinutes = minute;
 
-                        possedHours++;
-                        if(possedHours == breakAfterLessons)
+                        if (possedHours == breakAfterLessons)
                         {
                             possedHours = int.MinValue;
-                            minutePossed = minute;
+                            Console.WriteLine(String.Join(", ", studentsToday.Where(x => x.assigned).OrderBy(x => x.assignedMinutes).Select(x => x.name).ToArray()));
+                            int minuteOfLastPossedStudentToday = studentsToday.Where(x => x.assigned).OrderBy(x => x.assignedMinutes).ToArray()[2].assignedMinutes + lessonLength;
+                            minuteBreak = minuteOfLastPossedStudentToday;
+                            breakAfterLessonsStart[day] = minuteBreak;
                         }
                         break;
                     }
                 }
+            }
+        }
+
+        private void PosNotPossedStudents()
+        {
+            var unpossedStudents = students.Where(student => !student.assigned).ToList();
+
+            if (unpossedStudents.Count == 0)
+                return;
+
+            bool change = true;
+
+            while (change)
+            {
+                change = false;
+                // Pick one of unposed students with lowest number of possible hours
+                int lowestStudentIndex = -1;
+                int lowestStudentMinutes = int.MaxValue;
+                for (int i = 0; i < unpossedStudents.Count; i++)
+                {
+                    User s = unpossedStudents[i];
+                    int minutes = 0;
+                    for (int day = 0; day < 5; day++)
+                    {
+                        minutes += s.minutesToAvailable[day] - s.minutesFromAvailable[day];
+                    }
+                    if (minutes < lowestStudentMinutes)
+                    {
+                        lowestStudentIndex = i;
+                        lowestStudentMinutes = minutes;
+                    }
+                }
+                User selectStudent = unpossedStudents[lowestStudentIndex];
+
+
             }
         }
 
