@@ -48,6 +48,21 @@ namespace StudentScheduler
             Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); UpdateListOfDays(); };
 
             Gid("run").OnClick = (e) => { plan.Calc(); Gid("output").InnerHTML = plan.GenerateHTML(); };
+
+            // Test
+            Gid("test").OnClick = (e) =>
+            {
+                plan.teachers.Add(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }));
+
+                plan.students.Add(new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 15 * 60, 0, 0, 0, 0 }, new int[] { 16 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] {18 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 12 * 60, 0, 0, 0, 0 }, new int[] { 14 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 0, 0, 0, 0, 0 }, new int[] { 23 * 60 + 59, 0, 0, 0, 0 }));
+
+
+                plan.Calc();
+                Gid("output").InnerHTML = plan.GenerateHTML();
+            };
         }
 
         private static void AddNewTeacher(HTMLElement sender)
