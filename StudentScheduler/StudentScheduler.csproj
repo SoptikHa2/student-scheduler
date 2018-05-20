@@ -37,6 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AppLogic\App.cs" />
+    <Compile Include="AppLogic\NetworkFlow\Edge.cs" />
+    <Compile Include="AppLogic\NetworkFlow\Flow.cs" />
+    <Compile Include="AppLogic\NetworkFlow\Node.cs" />
+    <Compile Include="AppLogic\NetworkFlow\TimeChunk.cs" />
     <Compile Include="AppLogic\Plan.cs" />
     <Compile Include="AppLogic\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,7 +70,7 @@
   <ItemGroup>
     <Content Include="Website\css\bootstrap.min.css" />
     <Content Include="Website\css\mdb.min.css" />
-    <Content Include="Website\index.html" />
+    <Content Include="Website\menu-inactive.html" />
     <Content Include="Website\js\bootstrap.bundle.min.js" />
     <Content Include="Website\js\bootstrap.min.js" />
     <Content Include="Website\js\Bridge.dll" />
@@ -93,7 +97,7 @@
     <Content Include="Website\js\popper.min.js" />
     <Content Include="Website\js\StudentScheduler.dll" />
     <Content Include="Website\js\StudentScheduler.pdb" />
-    <Content Include="Website\plan.html" />
+    <Content Include="Website\index.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Website\img\" />
