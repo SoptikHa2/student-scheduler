@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StudentScheduler.AppLogic.NetworkFlow;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace StudentScheduler.AppLogic
     {
         public const int lessonLength = 50; // 45 + 5 pause
         private const int breakAfterLessons = 3; // Break after 3 lessons
-        private const int breakAfterLessonsLength = 15; // Let's just sleep a bit 
+        public const int breakAfterLessonsLength = 15;
         private int[] breakAfterLessonsStart = new int[] { int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue };
 
         public List<User> students;
@@ -57,7 +58,7 @@ namespace StudentScheduler.AppLogic
                     User current = pssday[i];
 
                     // Insert break
-                    if (possedStudentsToday == breakAfterLessons)
+                    if (possedStudentsToday == breakAfterLessons && breakAfterLessonsStart[day] != int.MaxValue)
                     {
                         int breakFrom = (int)Math.Floor(breakAfterLessonsStart[day] / 60d);
                         int breakTo = (int)Math.Floor((breakAfterLessonsStart[day] + breakAfterLessonsLength) / 60d);
@@ -91,6 +92,23 @@ namespace StudentScheduler.AppLogic
         // NOTE: I assume there is only one teacher
         public void Calc()
         {
+            for (int day = 0; day < 5; day++)
+            {
+                foreach (User teacher in teachers)
+                {
+                    if (teacher.minutesToAvailable[day] - teacher.minutesFromAvailable[day] >= lessonLength)
+                        teacher.daysAvailable[day] = true;
+                }
+
+                foreach (User student in students)
+                {
+                    if (student.minutesToAvailable[day] - student.minutesFromAvailable[day] >= lessonLength)
+                        student.daysAvailable[day] = true;
+                }
+            }
+
+
+
             // HOW THIS WORKS:
 
 
@@ -127,9 +145,45 @@ namespace StudentScheduler.AppLogic
             }
 
             // First stage
-            TryToPosAllStudentsVer2();
+            //TryToPosAllStudentsVer2();
             // Second stage
-            PosNotPossedStudents();
+            //PosNotPossedStudents();
+
+
+
+            // OR I could do it this way:
+
+            // 1            For all days where at least 1 teacher + 1 student has time and someone is not assigned yet
+            // 1.1          Pos 3 students this way: Pos student that can be there the earliest time. If there is someone, that can be there
+            //              <50 minutes after the student and has less time, place him instead
+            // 1.2          Place a break
+            // 1.3          Place as many students as you can
+
+            // 2            For all unassigned students:
+            // 2.1          Get all students that are blocking him. Do this for all (ordered by number of time) of them unless the student is possed:
+            // 2.1.1        Swap these students. Remember to move other students behind him if neccessary. Be careful if someone loses position because of this
+            // 2.1.2        If these swapped students (that don't have time now) don't have [direct] place to stay, revert changes
+            // 2.1.3        Else, place students there and go back to [2]
+
+
+            //PosStudents();
+            //IDontCareJustPossStudents(); // THIS WASNT COMMENTED
+
+
+
+
+
+
+            // USING FLOWS:
+
+            try
+            {
+                DoItUsingFlows();
+            }
+            catch (Exception ex)
+            {
+                Bridge.Script.Call("console.log", ex);
+            }
         }
 
         private void TryToPosAllStudentsVer2()
@@ -228,7 +282,6 @@ namespace StudentScheduler.AppLogic
             }
         }
 
-
         private void TryToPosAllStudents()
         {
             // Assuming I have just one teacher
@@ -239,9 +292,9 @@ namespace StudentScheduler.AppLogic
                 // For all days, skip day if either all students or teacher are busy
 
                 // Get all students that have at least 50mins time today and still don't have anything assigned
-                var studentsForThisDay = students.Where(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day] >= 50 && !x.assigned).ToArray();
+                var studentsForThisDay = students.Where(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day] >= lessonLength && !x.assigned).ToArray();
 
-                if (teacher.minutesToAvailable[day] - teacher.minutesFromAvailable[day] < 50 || // If the teacher don't have full 50 minutes of time
+                if (teacher.minutesToAvailable[day] - teacher.minutesFromAvailable[day] < lessonLength || // If the teacher don't have full 50 minutes of time
                    studentsForThisDay.Length == 0) // Or if there is no student with at least 50 mintues of time
                     continue;
 
@@ -278,6 +331,193 @@ namespace StudentScheduler.AppLogic
                     hoursElapsed++;
                 }
             }
+        }
+
+        private void PosStudents()
+        {
+            for (int day = 0; day < 5; day++)
+            {
+                // Assuming I have just one teacher
+                User teacher = teachers[0];
+
+                // Get all students that have at least 50mins time today and still don't have anything assigned
+                var studentsForThisDay = students.Where(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day] >= lessonLength && !x.assigned)
+                    .OrderBy(x => x.minutesToAvailable[day] - x.minutesFromAvailable[day]).ToArray();
+
+                if (teacher.minutesToAvailable[day] - teacher.minutesFromAvailable[day] < lessonLength || !teacher.daysAvailable[day] || // If the teacher don't have full 50 minutes of time
+                   studentsForThisDay.Length == 0) // Or if there is no student with at least 50 mintues of time
+                    return;
+
+                int possed = 0;
+                // Go thru all teacher hours
+                for (int time = teacher.minutesFromAvailable[day]; time <= teacher.minutesToAvailable[day] - lessonLength; time += 5)
+                {
+                    // Lets take a break
+                    if (possed == 3)
+                    {
+                        breakAfterLessonsStart[day] = time;
+                        time += breakAfterLessonsLength - 5;
+                        possed++;
+                    }
+
+                    // If there is student available
+                    var studentsAvailable = studentsForThisDay.Where(x => x.minutesFromAvailable[day] <= time && x.minutesToAvailable[day] >= time + lessonLength)
+                        .OrderBy(x => x.minutesFromAvailable[day]); // TODO: Kdyz jsou dva se stejnyma hodinama, uprednostnit toho, kdo ma min casu
+                    Console.WriteLine(String.Join(", ", studentsAvailable.Select(x => x.name + ": " + x.minutesFromAvailable[day])));
+
+                    User chosenStudent = studentsAvailable.FirstOrDefault();
+
+                    if (chosenStudent == null)
+                        continue;
+
+                    chosenStudent.assignedMinutes = time;
+                    chosenStudent.assignedDay = day;
+                    chosenStudent.assigned = true;
+
+                    time += lessonLength - 5;
+
+                    possed++;
+                }
+            }
+        }
+
+        private void BruteForceStudents()
+        {
+            User teacher = teachers[0];
+
+            for (int day = 0; day < 5; day++)
+            {
+                if (teacher.daysAvailable[day])
+                {
+                    List<BruteForcedStudent> result = BruteForceStudents(day, teacher.minutesFromAvailable[day], teacher.minutesToAvailable[day], 0);
+                    for (int i = 0; i < result.Count; i++)
+                    {
+                        result[i].student.assigned = true;
+                        result[i].student.assignedDay = day;
+                        result[i].student.assignedMinutes = result[i].minutesFrom;
+                    }
+                }
+            }
+        }
+
+        private List<BruteForcedStudent> BruteForceStudents(int day, int startTime, int endTime, int studentsPossed)
+        {
+            if (startTime >= endTime - lessonLength)
+            {
+                return new List<BruteForcedStudent>();
+            }
+
+            var startStudent = students.Where(x => !x.assigned && x.minutesFromAvailable[day] >= startTime &&
+                                                    x.minutesToAvailable[day] <= endTime).OrderBy(x => x.minutesFromAvailable[day]).FirstOrDefault();
+            if (startStudent == null)
+            {
+                startTime += 5;
+                return BruteForceStudents(day, startTime, endTime, studentsPossed);
+            }
+
+            int startStudentStartTime = startStudent.minutesFromAvailable[day];
+
+
+            studentsPossed++;
+            startTime += lessonLength;
+            if (studentsPossed == breakAfterLessons)
+                startTime += breakAfterLessonsLength;
+            var anotherStudents = students.Where(x => !x.assigned && x.minutesFromAvailable[day] > startStudentStartTime - lessonLength &&
+                                                      x.minutesToAvailable[day] <= endTime && x != startStudent);
+
+            Console.WriteLine("----------------------");
+            Console.Write(startStudent.name + ",");
+            Console.WriteLine(String.Join(",", anotherStudents.Select(x => x.name)));
+
+            List<List<BruteForcedStudent>> preResult = new List<List<BruteForcedStudent>>();
+
+            {
+                List<BruteForcedStudent> possResult = new List<BruteForcedStudent>();
+                possResult.Add(new BruteForcedStudent(startStudentStartTime, startStudent));
+                List<BruteForcedStudent> newStudents = BruteForceStudents(day, startTime, endTime, studentsPossed);
+                if (newStudents != null)
+                {
+                    possResult.AddRange(newStudents);
+                }
+                preResult.Add(possResult);
+            }
+            foreach (var anotherStudent in anotherStudents)
+            {
+                List<BruteForcedStudent> possibleResult = new List<BruteForcedStudent>();
+                possibleResult.Add(new BruteForcedStudent(Math.Max(startTime, anotherStudent.minutesFromAvailable[day]), anotherStudent));
+                List<BruteForcedStudent> newStudents = BruteForceStudents(day, startTime, endTime, studentsPossed);
+                if (newStudents != null)
+                {
+                    possibleResult.AddRange(newStudents);
+                }
+                preResult.Add(possibleResult);
+            }
+
+            preResult.OrderByDescending(x => x.Count);
+
+            return preResult.First();
+        }
+
+        private void IDontCareJustPossStudents()
+        {
+            User teacher = teachers[0];
+
+            for (int day = 0; day < 5; day++)
+            {
+                if (teacher.daysAvailable[day])
+                {
+                    int startTime = teacher.minutesFromAvailable[day];
+                    int endTime = teacher.minutesToAvailable[day];
+                    int studentsPossed = 0;
+
+                    for (int minute = 0; minute < endTime - startTime;)
+                    {
+                        var studentsRightNow = students.Where(x => !x.assigned && x.daysAvailable[day] && x.minutesFromAvailable[day] <= startTime + minute &&
+                                                                    x.minutesToAvailable[day] >= startTime + minute + lessonLength);
+
+                        if (studentsRightNow.Count() == 0)
+                        {
+                            minute++;
+                            continue;
+                        }
+
+                        var studentToPos = studentsRightNow.First(); // TODO: Choose someone better way
+                        studentToPos.assigned = true;
+                        studentToPos.assignedDay = day;
+                        studentToPos.assignedMinutes = startTime + minute;
+
+                        studentsPossed++;
+
+                        minute += lessonLength;
+
+                        if (studentsPossed == breakAfterLessons)
+                        {
+                            breakAfterLessonsStart[day] = startTime + minute;
+                            minute += breakAfterLessonsLength;
+                            studentsPossed++;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DoItUsingFlows()
+        {
+            Flow flow = new Flow(teachers[0], students);
+            int[] breaks = flow.GetResult();
+            breakAfterLessonsStart = breaks;
+        }
+    }
+
+    internal struct BruteForcedStudent
+    {
+        public int minutesFrom;
+        public User student;
+
+        public BruteForcedStudent(int minutesFrom, User student)
+        {
+            this.minutesFrom = minutesFrom;
+            this.student = student;
         }
     }
 }
