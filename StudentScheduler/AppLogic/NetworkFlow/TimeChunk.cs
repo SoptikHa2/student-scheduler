@@ -10,17 +10,24 @@ namespace StudentScheduler.AppLogic.NetworkFlow
     {
         public TimeChunk(Node from, Node to) : base(0, 0, from, to) { }
 
-        private int GetBlockingNodes(IEnumerable<Node> timeNodes, Flow flow)
+        private int GetBlockingNodes(IEnumerable<Node> timeNodes, Node baseNode)
         {
-            HashSet<Node> blockingNodes = new HashSet<Node>();
-            foreach(Node timeNode in timeNodes)
+            int blockingNodes = timeNodes.Where(tNode => Math.Abs(tNode.Value - baseNode.Value) < 50).Count();
+
+            if(blockingNodes == 0)
             {
-                var anotherTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != timeNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Count() == 1);
-                var newBlockingNodes = anotherTimeNodes.Where(node => Math.Abs(timeNode.Value - node.Value) < Plan.lessonLength);
-                newBlockingNodes.ForEach(node => blockingNodes.Add(node));
+                Console.WriteLine("I just passed with this settings: ");
+                Console.WriteLine(String.Join(",", timeNodes.Select(node => node.Value)));
+                Console.WriteLine("Base was " + baseNode.Value);
+            }
+            else
+            {
+                Console.WriteLine("I didn't pass with this settings:");
+                Console.WriteLine(String.Join(",", timeNodes.Select(node => node.Value)));
+                Console.WriteLine("Base was " + baseNode.Value);
             }
 
-            return blockingNodes.Count;
+            return blockingNodes;
         }
 
         /// <summary>
@@ -29,10 +36,29 @@ namespace StudentScheduler.AppLogic.NetworkFlow
         /// <param name="currentPath"></param>
         /// <param name="flow"></param>
         /// <returns>Number of nodes that block current path</returns>
-        public override int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow)
+        public override int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow, string info)
         {
-            int blockingNodes = GetBlockingNodes(currentPath.Where(node => node.Value != -1), flow);
-            Console.WriteLine("Checking timechunk, " + blockingNodes + " blocking nodes found");
+            if (info == "ThisToString")
+                return int.MinValue;
+
+            int blockingNodes = -1;
+            try
+            {
+                Node baseNode = currentPath.ToList()[currentPath.Count() - 2];
+                Console.WriteLine("GetCurrentFlow Path: ");
+                Console.WriteLine(String.Join(",", currentPath.Select(node => node.Value)));
+                var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetCurrentFlow") == 1).Count() == 1).ToList();
+                allTimeNodes.AddRange(currentPath.Where(node => node.Value != -1 && node != baseNode));
+                Console.WriteLine("Starting BlockingNodes...");
+                blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
+                Console.WriteLine("Ending BlockingNodes...");
+            }catch(Exception ex)
+            {
+                Console.WriteLine("BlockinNodes Failed!");
+                Console.WriteLine(info);
+                Console.WriteLine(ex);
+                throw ex;
+            }
             return blockingNodes;
         }
 

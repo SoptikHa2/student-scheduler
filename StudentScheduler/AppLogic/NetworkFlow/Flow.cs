@@ -175,7 +175,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 List<Node> renderedPath = RenderPath(Nodes.First(), node, FlowPath);
                 foreach (Edge outputEdge in node.OutputEdges)
                 {
-                    int flow = outputEdge.GetCurrentFlow(renderedPath, this);
+                    int flow = outputEdge.GetCurrentFlow(renderedPath, this, "OutputEdges");
                     if (flow > 1)
                         doInputEdges = false;
                     if (flow == 0)
@@ -185,10 +185,11 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 {
                     foreach (Edge inputEdge in node.InputEdges)
                     {
+                        // Why?
                         if (renderedPath.Count >= 2 && inputEdge.From == renderedPath[renderedPath.Count - 2])
                             continue;
 
-                        int flow = inputEdge.GetCurrentFlow(renderedPath, this);
+                        int flow = inputEdge.GetCurrentFlow(renderedPath, this, "InputEdges");
                         if (flow == 1)
                             avaiableNodes.Add(inputEdge.From);
                     }
@@ -222,6 +223,23 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 ApplyFlow(Nodes.First(), TimeChunk, FlowPath);
                 return true;
             }
+
+            /*// First of all, we have to create the dictionary, so we know, what the path is
+            Dictionary<Node, Node> FlowPath = new Dictionary<Node, Node>();
+            // Populate the dictionary with nodes
+            foreach (Node node in Nodes) FlowPath.Add(node, null);
+
+            // Here, we create Queue, that holds nodes, that we will want to work with
+            // Plus list of nodes which were already added to Queue, so we don't process one node multiple times
+            Queue<Node> nodesToProcess = new Queue<Node>();
+            // And let's enqueue root node
+            nodesToProcess.Enqueue(Nodes[0]);
+            // Here's the list of added nodes
+            HashSet<Node> alreadyAddedNodes = new HashSet<Node>();
+            // And add the root node
+            alreadyAddedNodes.Add(Nodes[0]);
+
+            // Now we build the flow: */
         }
 
         private void DEBUG_WriteFlowPath(Dictionary<Node, Node> FlowPath)
@@ -259,8 +277,8 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             Console.Write(usedTimeNodes.Count());
 
             //var edges = usedTimeNodes.Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
-            var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Count() == 1)
-                                     .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
+            var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetResult") == 1).Count() == 1)
+                                     .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetREsult2") == 1).Single());
 
             Console.WriteLine(edges.Count());
 
@@ -341,7 +359,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             {
                 foreach (Edge outputEdge in n.OutputEdges)
                 {
-                    command += $"{outputEdge.From.Identifier} -->|{outputEdge.GetCurrentFlow(new Node[0], this)}| {outputEdge.To.Identifier}\r\n";
+                    command += $"{outputEdge.From.Identifier} -->|{outputEdge.GetCurrentFlow(new Node[0], this, "ThisToString")}| {outputEdge.To.Identifier}\r\n";
                 }
             }
 
