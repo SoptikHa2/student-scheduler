@@ -16,15 +16,11 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
             if(blockingNodes == 0)
             {
-                Console.WriteLine("I just passed with this settings: ");
-                Console.WriteLine(String.Join(",", timeNodes.Select(node => node.Value)));
-                Console.WriteLine("Base was " + baseNode.Value);
+                Log.Write("I just passed with this settings: " + String.Join(" , ", timeNodes.Select(node => node.Identifier + " with value " + node.Value)) + ". Base was " + baseNode.Identifier + " with value " + baseNode.Value, Log.Severity.Critical);
             }
             else
             {
-                Console.WriteLine("I didn't pass with this settings:");
-                Console.WriteLine(String.Join(",", timeNodes.Select(node => node.Value)));
-                Console.WriteLine("Base was " + baseNode.Value);
+                Log.Write("I didn't pass with this settings:" + String.Join(" , ", timeNodes.Select(node => node.Identifier + " with value " + node.Value)) + ". Base was " + baseNode.Identifier + " with value " + baseNode.Value, Log.Severity.Critical);
             }
 
             return blockingNodes;
@@ -45,18 +41,16 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             try
             {
                 Node baseNode = currentPath.ToList()[currentPath.Count() - 2];
-                Console.WriteLine("GetCurrentFlow Path: ");
-                Console.WriteLine(String.Join(",", currentPath.Select(node => node.Value)));
+                Log.Write("GetCurrentFlow Path: " + String.Join(",", currentPath.Select(node => node.Value)), Log.Severity.Info);
                 var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetCurrentFlow") == 1).Count() == 1).ToList();
                 allTimeNodes.AddRange(currentPath.Where(node => node.Value != -1 && node != baseNode));
-                Console.WriteLine("Starting BlockingNodes...");
+                Log.Write("Starting BlockingNodes...", Log.Severity.Info);
                 blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
-                Console.WriteLine("Ending BlockingNodes...");
+                Log.Write("Ending BlockingNodes...", Log.Severity.Info);
             }catch(Exception ex)
             {
-                Console.WriteLine("BlockinNodes Failed!");
-                Console.WriteLine(info);
-                Console.WriteLine(ex);
+                Log.Write("BlockingNodes Failed! Info: " + info, Log.Severity.Critical);
+                Log.Write(ex, Log.Severity.Critical);
                 throw ex;
             }
             return blockingNodes;

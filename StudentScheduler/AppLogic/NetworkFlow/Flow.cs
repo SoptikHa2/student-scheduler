@@ -31,10 +31,10 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
             for (int day = 0; day < 5; day++)
             {
-                Console.WriteLine($"===================DEN: {day}==============");
+                Log.Write($"===================DAY: {day}==============", Log.Severity.Info);
                 BuildGraph(day);
                 Start();
-                Console.WriteLine("Dobehlo to...");
+                Log.Write("Done...", Log.Severity.Info);
                 var studentsToday = GetResultFromGraph(day);
                 // If there are more then three students today:
                 if (studentsToday.Count > 3)
@@ -57,8 +57,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 foreach (AssignmentPreview result in studentsToday) ApplyStudent(result);
             }
 
-            Console.WriteLine("Break: ");
-            Console.WriteLine(String.Join(", ", breaks));
+            Log.Write("Break: " + String.Join(", ", breaks), Log.Severity.Info);
 
             return breaks;
         }
@@ -172,26 +171,55 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 List<Node> avaiableNodes = new List<Node>(node.OutputEdges.Count + node.InputEdges.Count);
 
                 bool doInputEdges = true;
+                bool areInputEdgesForbidden = false;
                 List<Node> renderedPath = RenderPath(Nodes.First(), node, FlowPath);
                 foreach (Edge outputEdge in node.OutputEdges)
                 {
                     int flow = outputEdge.GetCurrentFlow(renderedPath, this, "OutputEdges");
                     if (flow > 1)
-                        doInputEdges = false;
+                        areInputEdgesForbidden = true;
                     if (flow == 0)
+                    {
                         avaiableNodes.Add(outputEdge.To);
+                        doInputEdges = false;
+                    }
                 }
-                if (doInputEdges)
+                if (doInputEdges && !areInputEdgesForbidden)
                 {
                     foreach (Edge inputEdge in node.InputEdges)
                     {
+                        // RESENI: Tohle budu prochazet, JENOM kdyz nenajdu zadnou cestu pomoci OutputEdge //TODO: Mozne nefunkcni pro neco?
+                        // Budu hledat cestu JENOM mezi hranami grafu, do kterych MUZE ten student, ktery ma cestu, kterou mu kradu; jit.
+
+                        // Sem se dostanu jenom v pripade, ze vsechny OutputNody z TimeChunku(Node) jsou odmitnuty -> [node] je vzdy TimeChunk
+
+                        if(node.Identifier != "TimeChunk")
+                        {
+                            Log.Write($"!!! NODE ISN'T TIME CHUNK !!! \"{node.Identifier}\" ({node.Value})", Log.Severity.Critical);
+                        }
+
+                        // Najdu si studenta, ktery ho blokuje a najdu mu jinou cestu.
+                        // Tenhle novyStudent si vezme cestu stareho studenta (^^)
+
+
+                        /*
+                        if (inputEdge is TimeChunk)
+                        {
+                            Log.Write("I found input edge that was Time Chunk; from = " + inputEdge.To.Identifier, Log.Severity.Warning);
+                        }
+
                         // Why?
                         if (renderedPath.Count >= 2 && inputEdge.From == renderedPath[renderedPath.Count - 2])
                             continue;
 
                         int flow = inputEdge.GetCurrentFlow(renderedPath, this, "InputEdges");
                         if (flow == 1)
+                        {
                             avaiableNodes.Add(inputEdge.From);
+                            Log.Write("I just used backflow. Here's full path: " + String.Join(" , ", renderedPath.Select(n => $"\"{n.Identifier}\"({n.Value})")) + ". The new node is \"" + inputEdge.From.Identifier + "\"(" + inputEdge.From.Value + ")", Log.Severity.Critical);
+                        }
+                        */
+
                     }
                 }
 
@@ -208,18 +236,18 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             }
 
             // Now, I (probably) have flow
-            Console.WriteLine(this.ToString());
+            Log.Write(this.ToString(), Log.Severity.Info);
             DEBUG_WriteFlowPath(FlowPath);
             var TimeChunk = FlowPath.Keys.Where(x => x.Identifier == "TimeChunk").SingleOrDefault();
             if (TimeChunk == null || FlowPath[TimeChunk] == null)
             {
-                Console.WriteLine("No flow");
+                Log.Write("No flow", Log.Severity.Info);
                 // No flow
                 return false;
             }
             else
             {
-                Console.WriteLine("Applying flow");
+                Log.Write("Applying flow", Log.Severity.Info);
                 ApplyFlow(Nodes.First(), TimeChunk, FlowPath);
                 return true;
             }
@@ -247,7 +275,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             string output = "Keys: " + String.Join(" | ", FlowPath.Keys.Select(x => x.Identifier));
             output += "\n";
             output += "Values: " + String.Join(" | ", FlowPath.Values.Select(x => x == null ? "---" : x.Identifier));
-            Console.WriteLine(output);
+            Log.Write(output, Log.Severity.Info);
         }
 
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, Node> flowPath)
@@ -268,19 +296,19 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private List<AssignmentPreview> GetResultFromGraph(int day)
         {
-            Console.Write("Startuje GetResultFromGraph");
+            Log.Write("Starting GetResultFromGraph", Log.Severity.Info);
 
             var timeNodes = Nodes.Where(node => node.Value != -1);
 
             var usedTimeNodes = timeNodes.Where(node => node.InputEdges.Count != 0);
 
-            Console.Write(usedTimeNodes.Count());
+            Log.Write("Time nodes total: " + usedTimeNodes.Count(), Log.Severity.Info);
 
             //var edges = usedTimeNodes.Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
             var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetResult") == 1).Count() == 1)
                                      .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetREsult2") == 1).Single());
 
-            Console.WriteLine(edges.Count());
+            Log.Write("Time nodes with selected edge: " + edges.Count(), Log.Severity.Info);
 
             return edges.Select(edge => new AssignmentPreview()
             {
@@ -307,12 +335,12 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 if (edge.IsFromNode1ToNode2)
                 {
                     edge.ResultEdge.SetCurrentFlow(0);
-                    Console.WriteLine($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 0");
+                    Log.Write($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 0", Log.Severity.Warning);
                 }
                 else
                 {
                     edge.ResultEdge.SetCurrentFlow(1);
-                    Console.WriteLine($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 1");
+                    Log.Write($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 1", Log.Severity.Info);
                 }
 
                 nextNode = flowPath[nextNode];

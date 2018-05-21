@@ -43,6 +43,7 @@
     <Compile Include="AppLogic\NetworkFlow\TimeChunk.cs" />
     <Compile Include="AppLogic\Plan.cs" />
     <Compile Include="AppLogic\User.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

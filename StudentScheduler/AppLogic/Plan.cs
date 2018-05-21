@@ -182,7 +182,7 @@ namespace StudentScheduler.AppLogic
             }
             catch (Exception ex)
             {
-                Bridge.Script.Call("console.log", ex);
+                Log.Write(ex, Log.Severity.Critical);
             }
         }
 
@@ -236,7 +236,7 @@ namespace StudentScheduler.AppLogic
                         if (possedHours == breakAfterLessons)
                         {
                             possedHours = int.MinValue;
-                            Console.WriteLine(String.Join(", ", studentsToday.Where(x => x.assigned).OrderBy(x => x.assignedMinutes).Select(x => x.name).ToArray()));
+                            Log.Write(String.Join(", ", studentsToday.Where(x => x.assigned).OrderBy(x => x.assignedMinutes).Select(x => x.name).ToArray()), Log.Severity.Info);
                             int minuteOfLastPossedStudentToday = studentsToday.Where(x => x.assigned).OrderBy(x => x.assignedMinutes).ToArray()[2].assignedMinutes + lessonLength;
                             minuteBreak = minuteOfLastPossedStudentToday;
                             breakAfterLessonsStart[day] = minuteBreak;
@@ -363,7 +363,7 @@ namespace StudentScheduler.AppLogic
                     // If there is student available
                     var studentsAvailable = studentsForThisDay.Where(x => x.minutesFromAvailable[day] <= time && x.minutesToAvailable[day] >= time + lessonLength)
                         .OrderBy(x => x.minutesFromAvailable[day]); // TODO: Kdyz jsou dva se stejnyma hodinama, uprednostnit toho, kdo ma min casu
-                    Console.WriteLine(String.Join(", ", studentsAvailable.Select(x => x.name + ": " + x.minutesFromAvailable[day])));
+                    Log.Write(String.Join(", ", studentsAvailable.Select(x => x.name + ": " + x.minutesFromAvailable[day])), Log.Severity.Info);
 
                     User chosenStudent = studentsAvailable.FirstOrDefault();
 
@@ -425,9 +425,9 @@ namespace StudentScheduler.AppLogic
             var anotherStudents = students.Where(x => !x.assigned && x.minutesFromAvailable[day] > startStudentStartTime - lessonLength &&
                                                       x.minutesToAvailable[day] <= endTime && x != startStudent);
 
-            Console.WriteLine("----------------------");
-            Console.Write(startStudent.name + ",");
-            Console.WriteLine(String.Join(",", anotherStudents.Select(x => x.name)));
+            Log.Write("----------------------", Log.Severity.Info);
+            Log.Write(startStudent.name + ",", Log.Severity.Info);
+            Log.Write(String.Join(",", anotherStudents.Select(x => x.name)), Log.Severity.Info);
 
             List<List<BruteForcedStudent>> preResult = new List<List<BruteForcedStudent>>();
 

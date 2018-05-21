@@ -68,6 +68,8 @@ namespace StudentScheduler
                 plan.Calc();
                 Gid("output").InnerHTML = plan.GenerateHTML();
             };
+
+            Log.InitializeWithDiv(Gid("logDiv") as HTMLDivElement);
         }
 
         private static void AddNewTeacher(HTMLElement sender)

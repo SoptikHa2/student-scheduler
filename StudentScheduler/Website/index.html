@@ -107,6 +107,7 @@
                     <!--<button id="save" class="btn btn-success">Uložit</button>
                     <button class="btn btn-danger" data-toggle="modal" data-target="#newRemoveModal">Vymazat</button>-->
                     <button id="test" class="btn btn-grey">Test</button>
+                    <button id="ShowDebugModal" class="btn btn-grey" data-toggle="modal" data-target="#DebugModal">Zobrazit Debug</button>
                     <hr />
                     <small>Vytvořil Petr Šťastný v roce 2018</small>
                 </div>
@@ -223,7 +224,7 @@
             </div>
         </div>
 
-        <!-- SetHours modal --> 
+        <!-- SetHours modal -->
         <div class="modal fade" id="setHoursModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -304,6 +305,24 @@
                         <button type="button" class="btn btn-danger" id="set-time-hours-cancel" data-dismiss="modal">Odstranit čas</button>
                         <button type="button" class="btn btn-grey" data-dismiss="modal">Zrušit</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="DebugModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content"> 
+                <div class="modal-header">
+                    <h5 class="modal-title">Debug výstup programu</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="logDiv"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="ClearDebugInfoButton" onclick="$('#logDiv').html('');">Vymazat informace</button>
+                    <button type="button" class="btn btn-grey" data-dismiss="modal">Zavřít</button>
                 </div>
             </div>
         </div>
