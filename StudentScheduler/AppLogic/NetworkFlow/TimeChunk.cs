@@ -14,7 +14,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
         {
             int blockingNodes = timeNodes.Where(tNode => Math.Abs(tNode.Value - baseNode.Value) < 50).Count();
 
-            if(blockingNodes == 0)
+            if (blockingNodes == 0)
             {
                 Log.Write("I just passed with this settings: " + String.Join(" , ", timeNodes.Select(node => node.Identifier + " with value " + node.Value)) + ". Base was " + baseNode.Identifier + " with value " + baseNode.Value, Log.Severity.Critical);
             }
@@ -43,11 +43,12 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 Node baseNode = currentPath.ToList()[currentPath.Count() - 2];
                 Log.Write("GetCurrentFlow Path: " + String.Join(",", currentPath.Select(node => node.Value)), Log.Severity.Info);
                 var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetCurrentFlow") == 1).Count() == 1).ToList();
-                allTimeNodes.AddRange(currentPath.Where(node => node.Value != -1 && node != baseNode));
+                allTimeNodes.Union(currentPath.Where(node => node.Value != -1 && node != baseNode));
                 Log.Write("Starting BlockingNodes...", Log.Severity.Info);
                 blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
                 Log.Write("Ending BlockingNodes...", Log.Severity.Info);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Log.Write("BlockingNodes Failed! Info: " + info, Log.Severity.Critical);
                 Log.Write(ex, Log.Severity.Critical);

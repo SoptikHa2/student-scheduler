@@ -21,6 +21,11 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             this.Nodes = new List<Node>();
         }
 
+        public void DEBUG_ClearNodes()
+        {
+            Nodes.Clear();
+        }
+
         /// <summary>
         /// Gets result using flows. This method will set student assigned times and return array of minutes, when is break time each day
         /// </summary>
@@ -145,7 +150,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
         }
 
         // Return value: did we create new flow?
-        private bool CreateNewFlow()
+        private bool OLD_CreateNewFlow()
         {
             // Let's create dictionary of Node : SourceNode
             //  +----+----+----+-----+-----+
@@ -175,6 +180,14 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 List<Node> renderedPath = RenderPath(Nodes.First(), node, FlowPath);
                 foreach (Edge outputEdge in node.OutputEdges)
                 {
+                    // Kdyz jdu dopredu, musim zkontrolovat, jestli tenhle timeNode neni v rozmezi 50 minut od neceho, cim jsem prosel
+                    if (outputEdge.To.Value != -1 /* If target node is TimeNode */ &&
+                        renderedPath.Where(n => n.Value != -1 && Math.Abs(outputEdge.To.Value - n.Value) < Plan.lessonLength).Count() > 0 /* And count of nodes that I passed thru and are < 50 mintues away is > 0 */)
+                    {
+                        Log.Write("I've skipped outputEdge with [toNode]: " + outputEdge.To.Identifier, Log.Severity.Critical);
+                        continue;
+                    }
+
                     int flow = outputEdge.GetCurrentFlow(renderedPath, this, "OutputEdges");
                     if (flow > 1)
                         areInputEdgesForbidden = true;
@@ -188,12 +201,16 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 {
                     foreach (Edge inputEdge in node.InputEdges)
                     {
+                        // If this possible node is within 50-mintue range within another node in path, skip this
+                        /*if (inputEdge.From.Value != -1 && renderedPath.Where(n => n.Value != -1 && Math.Abs(n.Value - inputEdge.From.Value) < Plan.lessonLength).Count() > 0)
+                            continue;*/ // Tohle nic neresi
+
                         // RESENI: Tohle budu prochazet, JENOM kdyz nenajdu zadnou cestu pomoci OutputEdge //TODO: Mozne nefunkcni pro neco?
                         // Budu hledat cestu JENOM mezi hranami grafu, do kterych MUZE ten student, ktery ma cestu, kterou mu kradu; jit.
 
                         // Sem se dostanu jenom v pripade, ze vsechny OutputNody z TimeChunku(Node) jsou odmitnuty -> [node] je vzdy TimeChunk
 
-                        if(node.Identifier != "TimeChunk")
+                        if (node.Identifier != "TimeChunk")
                         {
                             Log.Write($"!!! NODE ISN'T TIME CHUNK !!! \"{node.Identifier}\" ({node.Value})", Log.Severity.Critical);
                         }
@@ -202,7 +219,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                         // Tenhle novyStudent si vezme cestu stareho studenta (^^)
 
 
-                        /*
+
                         if (inputEdge is TimeChunk)
                         {
                             Log.Write("I found input edge that was Time Chunk; from = " + inputEdge.To.Identifier, Log.Severity.Warning);
@@ -218,7 +235,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                             avaiableNodes.Add(inputEdge.From);
                             Log.Write("I just used backflow. Here's full path: " + String.Join(" , ", renderedPath.Select(n => $"\"{n.Identifier}\"({n.Value})")) + ". The new node is \"" + inputEdge.From.Identifier + "\"(" + inputEdge.From.Value + ")", Log.Severity.Critical);
                         }
-                        */
+
 
                     }
                 }
@@ -267,7 +284,126 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             // And add the root node
             alreadyAddedNodes.Add(Nodes[0]);
 
-            // Now we build the flow: */
+            // Now we build the flow: 
+
+            // While we have something to process in queue, select the node...
+            while(nodesToProcess.Count > 0)
+            {
+                Node nodeToProcess = nodesToProcess.Dequeue();
+
+                // TODO: The paths used in edge.GetCurrentFlow do NOT contain the current node -> problem?
+                
+                // First of all, save current path from this node to input, inverted. This is used to calculate flow through time chunk edges
+                List<Node> path = RenderPath(Nodes[0], nodeToProcess, FlowPath);
+                // What we do here? Get collection of edges that goes from this node
+                var edgesFromThisNode = nodeToProcess.OutputEdges.Where(edge => FlowPath[edge.To] == null && edge.GetCurrentFlow(path, this, "Getting output edges") == 0);
+                // Now, we get edges from this node to it's inputs, but not the inputs that we already went through. 
+                var edgesToThisNode = nodeToProcess.InputEdges.Where(edge => FlowPath[edge.From] == null && !path.Contains(edge.From) && edge.GetCurrentFlow(path, this, "Getting input edges") == 1);
+
+                // Add the nodes we got into FlowPath
+                edgesFromThisNode.ForEach(edge => FlowPath[edge.To] = nodeToProcess);
+                edgesToThisNode.ForEach(edge => FlowPath[edge.From] = nodeToProcess);
+
+                // Add these nodes to to-process list
+                edgesFromThisNode.ForEach(edge => nodesToProcess.Enqueue(edge.To));
+                edgesFromThisNode.ForEach(edge => nodesToProcess.Enqueue(edge.From));
+            }
+
+            // Now, we may have the flow
+            // Just check the output
+            Node output = Nodes.Where(node => node.Identifier == "Output").Single();
+            // If the output has something in FlowPath, we have flow!
+            if(FlowPath[output] != null)
+            {
+                // Apply flow
+                ApplyFlow(Nodes.First(), output, FlowPath);
+                return true;
+            }
+            else
+            {
+                return false;
+            }*/
+        }
+
+        private bool CreateNewFlow()
+        {
+            // First of all, let's create a dictionary, when we'll store currently chosen path
+            Dictionary<Node, Node> NodesPath = new Dictionary<Node, Node>();
+            // Add keys and null
+            Nodes.ForEach(node => NodesPath.Add(node, null));
+
+            // Let's start processing nodes
+            Queue<Node> nodesToProcess = new Queue<Node>();
+            HashSet<Node> alreadyProcessedNodes = new HashSet<Node>();
+            nodesToProcess.Enqueue(Nodes[0]);
+            alreadyProcessedNodes.Add(Nodes[0]);
+
+            // While there's something to process, process it
+            while (nodesToProcess.Count > 0)
+            {
+                // Start by getting node from the queue
+                Node node = nodesToProcess.Dequeue();
+                // And get current path
+                List<Node> path = RenderPath(Nodes[0], node, NodesPath);
+                Log.Write(String.Join(" -> ", path.Select(x => x.Identifier)), Log.Severity.Info); // Debug: write currently rendered path
+                // Now we need to get next nodes from this node...
+                var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting output nodes") == 0);
+                // And get previous nodes
+                var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
+                // Filter the nodes to only allow those that are not in alreadyProcessedNodes
+                nextNodes = nextNodes.Where(newNode => !alreadyProcessedNodes.Contains(newNode.To));
+                previousNodes = previousNodes.Where(newNode => !alreadyProcessedNodes.Contains(newNode.From));
+                // Add all these nodes to queue, list of processed nodes and the dictionary
+                foreach (Node newNode in nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From)))
+                {
+                    nodesToProcess.Enqueue(newNode);
+                    alreadyProcessedNodes.Add(newNode);
+                    NodesPath[newNode] = node;
+                }
+
+                try
+                {
+                    Log.Write(nodesToProcess.Peek(), Log.Severity.Info);
+                    Log.Write(NodesPath[nodesToProcess.Peek()] == null, Log.Severity.Info);
+                    Log.Write(NodesPath[nodesToProcess.Peek()]?.Identifier, Log.Severity.Info);
+                }
+                catch { }
+            }
+
+            Log.Write(this.ToString(), Log.Severity.Info);
+            DEBUG_WriteFlowPath(NodesPath);
+            // If there is flow going through output, there is flow
+            var output = NodesPath.Keys.Where(x => x.Identifier == "Output").SingleOrDefault();
+            if (output == null || NodesPath[output] == null)
+            {
+                // No flow
+                Log.Write("No flow", Log.Severity.Info);
+                return false;
+            }
+            else
+            {
+                // Apply flow
+                Log.Write("Applying flow", Log.Severity.Info);
+                NewFlowApply(RenderPath(Nodes[0], output, NodesPath));
+                return true;
+            }
+        }
+
+        private void NewFlowApply(List<Node> path)
+        {
+            for (int i = 0; i < path.Count() - 1; i++)
+            {
+                // Select node:nextNode
+                Node prevNode = path[i];
+                Node nextNode = path[i + 1];
+
+                // Now set the edge between them to the opposite value
+                Edge edgeBetweenNodes = prevNode.OutputEdges.Union(prevNode.InputEdges).Where(edge => edge.From == nextNode || edge.To == nextNode).Single();
+                if (!(edgeBetweenNodes is TimeChunk))
+                {
+                    edgeBetweenNodes.SetCurrentFlow(edgeBetweenNodes.GetCurrentFlow(null, null, "Flow Apply") == 0 ? 1 : 0);
+                }
+            }
         }
 
         private void DEBUG_WriteFlowPath(Dictionary<Node, Node> FlowPath)
