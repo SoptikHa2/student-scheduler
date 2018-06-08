@@ -354,10 +354,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting output nodes") == 0);
                 // And get previous nodes
                 var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
-                // If TimeChunk refused the request, clear it
-                if (node.OutputEdges.Where(edge => edge.To.Identifier == "TimeChunk").Count() > 0 &&
-                   nextNodes.Where(edge => edge.To.Identifier == "TimeChunk").Count() == 0)
-                    NodesPath[Nodes.Where(n => n.Identifier == "TimeChunk").Single()] = null;
                 // Filter the nodes to only allow those that are not in alreadyProcessedNodes
                 nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To] == null/* || (newNode.To.Identifier == "TimeChunk" && !nodesToProcess.Contains(newNode.To))*/);
                 previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From] == null);
