@@ -327,14 +327,14 @@ namespace StudentScheduler.AppLogic.NetworkFlow
         private bool CreateNewFlow()
         {
             // First of all, let's create a dictionary, when we'll store currently chosen path
-            Dictionary<Node, Node> NodesPath = new Dictionary<Node, Node>();
+            Dictionary<Node, NodesPathCollection> NodesPath = new Dictionary<Node, NodesPathCollection>();
             // Add keys and null
-            Nodes.ForEach(node => NodesPath.Add(node, null));
+            Nodes.ForEach(node => NodesPath.Add(node, new NodesPathCollection()));
 
             // Let's start processing nodes
             Queue<Node> nodesToProcess = new Queue<Node>();
             nodesToProcess.Enqueue(Nodes[0]);
-            NodesPath[Nodes[0]] = new Node("Input Placeholder", -1, Node.NodeType.Input);
+            NodesPath[Nodes[0]].Nodes.Add(new Node("Input Placeholder", -1, Node.NodeType.Input));
 
             // While there's something to process, process it
             while (nodesToProcess.Count > 0)
@@ -355,7 +355,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 // And get previous nodes
                 var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
                 // Filter the nodes to only allow those that are not in alreadyProcessedNodes
-                nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To] == null/* || (newNode.To.Identifier == "TimeChunk" && !nodesToProcess.Contains(newNode.To))*/);
+                nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To].Nodes.Count == 0 || (newNode.To.Identifier == "TimeChunk" && NodesPath[newNode.To].SelectedNode == null));
                 previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From] == null);
                 // Add all these nodes to queue
                 foreach (Node newNode in nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From)))
@@ -430,7 +430,8 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 if (nextNode == null)
                     break;
 
-                nextNode = flowPath[nextNode];
+                // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
+                nextNode = flowPath[nextNode].SelectedNode ?? flowPath[nextNode].Nodes[0];
                 path.Add(nextNode);
             }
 
@@ -537,6 +538,21 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
 
             return command;
+        }
+    }
+
+    /// <summary>
+    /// This is used as value in NodesPath
+    /// </summary>
+    public class NodesPathCollection
+    {
+        public List<Node> Nodes;
+        public Node SelectedNode;
+
+        public NodesPathCollection()
+        {
+            Nodes = new List<Node>();
+            SelectedNode = null;
         }
     }
 }
