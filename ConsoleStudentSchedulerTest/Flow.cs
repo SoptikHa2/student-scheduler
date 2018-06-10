@@ -193,39 +193,24 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 }
             }
 
-            // Problem je, ze se k TimeChunku prida TimeNode, ktery neprojde, ale uz nepusti dalsi!
-            // Mozne reseni:
-            // NodesPath (Dictionary): do TimeChunku nebudu ukladat jeden node, ale list nodu -> s tim, ze pokud nejaky projde, ulozim ho specialne, nebo ho nejak oznacim.
-            // Takhle nedojde k stack overflow a cesta se vygeneruje pres ten oznaceny
-
             // Now, I (probably) have flow
             var output = NodesPath.Keys.Where(x => x.Identifier == "Output").SingleOrDefault();
             if (output == null || NodesPath[output].Nodes.Count == 0)
             {
                 // No flow
                 Console.WriteLine("Failure:");
-                DEBUG_WriteFlowPath(NodesPath);
                 return false;
             }
             else
             {
                 Console.WriteLine("Success");
-                NewFlowApply(RenderPath(Nodes[0], output, NodesPath));
+                ApplyFlow(RenderPath(Nodes[0], output, NodesPath));
                 Console.WriteLine(this);
                 return true;
             }
         }
 
-        // PREDELAL JSEM: Jmeno TimeChunku v custom buildu (v budovani klasickem by to melo fungovat furt stejne)
-        // Ted u testovani flowu testuju pro Output
-        // Kompletne jsem predelal Flow Apply
-        // Kompletne jsem predelal hledani flowu
-        // Trochu jsem upravil TimeChunk (Union)
-        // Pridal jsem ToString k Nodu
-        // Predelal jsem logovani na Console -> to bych mel vratit zpatky
-        // TODO: Predelat komentare u (ne)apply flowu (374-390)
-
-        private void NewFlowApply(List<Node> path)
+        private void ApplyFlow(List<Node> path)
         {
             for (int i = 0; i < path.Count() - 1; i++)
             {
@@ -240,14 +225,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     edgeBetweenNodes.SetCurrentFlow(edgeBetweenNodes.GetCurrentFlow(null, null, "Flow Apply") == 0 ? 1 : 0);
                 }
             }
-        }
-
-        private void DEBUG_WriteFlowPath(Dictionary<Node, NodesPathCollection> FlowPath)
-        {
-            string output = "Keys: " + String.Join(" | ", FlowPath.Keys.Select(x => x.Identifier));
-            output += "\n";
-            output += "Values: " + String.Join(" | ", FlowPath.Values.Select(value => String.Join(",", value.Nodes.Select(n => n.Identifier))));
-            Console.WriteLine(output);
         }
 
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, NodesPathCollection> flowPath)
@@ -299,28 +276,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             result.assignedStudent.assigned = true;
             result.assignedStudent.assignedDay = result.day;
             result.assignedStudent.assignedMinutes = result.timeStart;
-        }
-
-        private void ApplyFlow(Node rootNode, Node endNode, Dictionary<Node, Node> flowPath)
-        {
-            Node nextNode = endNode;
-            while (nextNode != rootNode)
-            {
-                EdgeInfo edge = GetEdgeInfo(nextNode, flowPath[nextNode]);
-
-                if (edge.IsFromNode1ToNode2)
-                {
-                    edge.ResultEdge.SetCurrentFlow(0);
-                    Console.WriteLine($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 0");
-                }
-                else
-                {
-                    edge.ResultEdge.SetCurrentFlow(1);
-                    Console.WriteLine($"Setting edge flow from {edge.ResultEdge.From.Identifier} to {edge.ResultEdge.To.Identifier} to 1");
-                }
-
-                nextNode = flowPath[nextNode];
-            }
         }
 
         private EdgeInfo GetEdgeInfo(Node node1, Node node2)
@@ -375,7 +330,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
     /// <summary>
     /// This is used as value in NodesPath
     /// </summary>
-    public class NodesPathCollection
+    class NodesPathCollection
     {
         public List<Node> Nodes;
         public Node SelectedNode;

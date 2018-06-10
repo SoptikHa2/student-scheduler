@@ -12,18 +12,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private int GetBlockingNodes(IEnumerable<Node> timeNodes, Node baseNode)
         {
-            int blockingNodes = timeNodes.Where(tNode => Math.Abs(tNode.Value - baseNode.Value) < 50).Count();
-
-            if(blockingNodes == 0)
-            {
-                //Console.WriteLine("I just passed with this settings: " + String.Join(" , ", timeNodes.Select(node => node.Identifier + " with value " + node.Value)) + ". Base was " + baseNode.Identifier + " with value " + baseNode.Value);
-            }
-            else
-            {
-                //Console.WriteLine("I didn't pass with this settings:" + String.Join(" , ", timeNodes.Select(node => node.Identifier + " with value " + node.Value)) + ". Base was " + baseNode.Identifier + " with value " + baseNode.Value);
-            }
-
-            return blockingNodes;
+            return timeNodes.Where(tNode => Math.Abs(tNode.Value - baseNode.Value) < 50).Count();
         }
 
         /// <summary>
