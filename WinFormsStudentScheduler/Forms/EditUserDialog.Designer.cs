@@ -121,6 +121,7 @@
             this.OKButton.TabIndex = 7;
             this.OKButton.Text = "OK";
             this.OKButton.UseVisualStyleBackColor = true;
+            this.OKButton.Click += new System.EventHandler(this.OKButton_Click);
             // 
             // CancelButton
             // 
@@ -131,6 +132,7 @@
             this.CancelButton.TabIndex = 8;
             this.CancelButton.Text = "Zrušit";
             this.CancelButton.UseVisualStyleBackColor = true;
+            this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // InputPO
             // 
@@ -191,7 +193,6 @@
             this.AcceptButton = this.OKButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.CancelButton;
             this.ClientSize = new System.Drawing.Size(242, 273);
             this.Controls.Add(this.InputPA);
             this.Controls.Add(this.InputCT);

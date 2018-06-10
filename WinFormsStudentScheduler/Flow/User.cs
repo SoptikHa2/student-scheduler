@@ -40,5 +40,10 @@ namespace StudentScheduler.AppLogic
 
             return $"Od {hoursF}:{(minutesF - hoursF * 60).ToString("00")} do {hoursT}:{(minutesT - hoursT * 60).ToString("00")}";
         }
+
+        public override string ToString()
+        {
+            return name;
+        }
     }
 }
