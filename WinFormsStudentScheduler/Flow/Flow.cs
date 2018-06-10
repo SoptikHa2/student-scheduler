@@ -31,7 +31,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
             for (int day = 0; day < 5; day++)
             {
-                Console.WriteLine($"===================DAY: {day}==============");
+                // Console.WriteLine($"===================DAY: {day}==============");
                 BuildGraph(day);
                 Start();
                 var studentsToday = GetResultFromGraph(day);
@@ -43,7 +43,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
                     // Start again (remove first two students and their times)
-                    BuildGraph(day, breaks[day], breaks[day] + 50);
+                    BuildGraph(day, breaks[day], breaks[day] + 15);
                     Start();
                     studentsToday = GetResultFromGraph(day);
                 }
@@ -56,7 +56,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 foreach (AssignmentPreview result in studentsToday) ApplyStudent(result);
             }
 
-            Console.WriteLine("Break: " + String.Join(", ", breaks));
+            // Console.WriteLine("Break: " + String.Join(", ", breaks));
 
             return breaks;
         }
@@ -163,7 +163,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
                 // And get current path
                 List<Node> path = RenderPath(Nodes[0], node, NodesPath);
-                //Console.WriteLine(String.Join(" -> ", path.Select(x => x.Identifier))); // Debug: write currently rendered path
+                //// Console.WriteLine(String.Join(" -> ", path.Select(x => x.Identifier))); // Debug: write currently rendered path
                 // Now we need to get next nodes from this node...
                 var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting output nodes") == 0);
                 // And get previous nodes
@@ -193,14 +193,14 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             if (output == null || NodesPath[output].Nodes.Count == 0)
             {
                 // No flow
-                Console.WriteLine("Failure:");
+                // Console.WriteLine("Failure:");
                 return false;
             }
             else
             {
-                Console.WriteLine("Success");
+                // Console.WriteLine("Success");
                 ApplyFlow(RenderPath(Nodes[0], output, NodesPath));
-                Console.WriteLine(this);
+                // Console.WriteLine(this);
                 return true;
             }
         }
@@ -244,19 +244,19 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private List<AssignmentPreview> GetResultFromGraph(int day)
         {
-            Console.WriteLine("Starting GetResultFromGraph");
+            // Console.WriteLine("Starting GetResultFromGraph");
 
             var timeNodes = Nodes.Where(node => node.Value != -1);
 
             var usedTimeNodes = timeNodes.Where(node => node.InputEdges.Count != 0);
 
-            Console.WriteLine("Time nodes total: " + usedTimeNodes.Count());
+            // Console.WriteLine("Time nodes total: " + usedTimeNodes.Count());
 
             //var edges = usedTimeNodes.Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
             var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetResult") == 1).Count() == 1)
                                      .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetREsult2") == 1).Single());
 
-            Console.WriteLine("Time nodes with selected edge: " + edges.Count());
+            // Console.WriteLine("Time nodes with selected edge: " + edges.Count());
 
             return edges.Select(edge => new AssignmentPreview()
             {

@@ -48,7 +48,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
                     // Start again (remove first two students and their times)
-                    BuildGraph(day, breaks[day], breaks[day] + 50);
+                    BuildGraph(day, breaks[day], breaks[day] + 15);
                     Start();
                     studentsToday = GetResultFromGraph(day);
                 }
