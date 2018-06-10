@@ -40,7 +40,8 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             int blockingNodes = -1;
             try
             {
-                Node baseNode = currentPath.ToList()[currentPath.Count() - 2];
+                // Time node, that I want to go through
+                Node baseNode = currentPath.ToList()[currentPath.Count() - 1];
                 var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetCurrentFlow") == 1).Count() == 1).ToList();
                 allTimeNodes.Union(currentPath.Where(node => node.Value != -1 && node != baseNode));
                 blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
