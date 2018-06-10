@@ -48,6 +48,41 @@ namespace StudentScheduler
             Gid("set-time-hours-cancel").OnClick = (e) => { RemoveHourInDay(); UpdateListOfDays(); };
 
             Gid("run").OnClick = (e) => { plan.Calc(); Gid("output").InnerHTML = plan.GenerateHTML(); };
+
+            // Test
+            Gid("test").OnClick = (e) =>
+            {
+                /*plan.teachers.Add(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }));
+
+                plan.students.Add(new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 15 * 60, 0, 0, 0, 0 }, new int[] { 16 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] {18 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 12 * 60, 0, 0, 0, 0 }, new int[] { 14 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 0, 0, 0, 0, 0 }, new int[] { 23 * 60 + 59, 0, 0, 0, 0 }));
+                */
+
+                /*plan.teachers.Add(new User("Test Teacher", new bool[] { true, false, false, false, false }, new int[] { 10 * 60, 0, 0, 0, 0 }, new int[] { 12 * 60, 0, 0, 0, 0 }));
+
+                plan.students.Add(new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 10 * 60, 0, 0, 0, 0 }, new int[] { 12 * 60, 0, 0, 0, 0 }));
+                plan.students.Add(new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 10 * 60 + 10, 0, 0, 0, 0 }, new int[] { 11 * 60 + 50, 0, 0, 0, 0 }));
+                */
+
+
+                // Randomly generated input
+                plan.teachers.Add(new User("Teacher", new bool[] { true, true, true, true, true }, new int[] { 10 * 60, 10 * 60, 10 * 60, 10 * 60, 10 * 60 }, new int[] { 18 * 60, 18 * 60, 18 * 60, 18 * 60, 18 * 60 }));
+                // Generate 30 students
+                Random rnd = new Random();
+                for (int i = 0; i < 30; i++)
+                {
+                    int[] timesFrom = new int[] { rnd.Next(10 * 60, 15 * 60), rnd.Next(10 * 60, 15 * 60), rnd.Next(10 * 60, 15 * 60), rnd.Next(10 * 60, 15 * 60), rnd.Next(10 * 60, 15 * 60) };
+                    int[] timesTo = new int[] { rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60) };
+                    plan.students.Add(new User("Student " + i, new bool[] { true, true, true, true, true }, timesFrom, timesTo));
+                }
+
+                plan.Calc();
+                Gid("output").InnerHTML = plan.GenerateHTML();
+            };
+
+            Log.InitializeWithDiv(Gid("logDiv") as HTMLDivElement);
         }
 
         private static void AddNewTeacher(HTMLElement sender)
@@ -222,6 +257,6 @@ namespace StudentScheduler
         }
 
         private static HTMLElement Gid(string id) => Document.GetElementById(id);
-        private static HTMLElement[] Gcl(string cls) => Document.Body.GetElementsByClassName(cls).ToArray();
+        private static HTMLCollection Gcl(string cls) => Document.Body.GetElementsByClassName(cls);
     }
 }

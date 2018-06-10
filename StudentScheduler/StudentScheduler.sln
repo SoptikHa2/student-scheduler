@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentScheduler", "StudentScheduler.csproj", "{42898FAB-8DB4-4232-99D6-1E2D5AE01BE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleStudentSchedulerTest", "..\ConsoleStudentSchedulerTest\ConsoleStudentSchedulerTest.csproj", "{A55151A7-F63B-4195-8FDC-B62F846C591B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{42898FAB-8DB4-4232-99D6-1E2D5AE01BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42898FAB-8DB4-4232-99D6-1E2D5AE01BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42898FAB-8DB4-4232-99D6-1E2D5AE01BE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

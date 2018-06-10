@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="cs" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta lang="cs" />
+    <title>Plánovač rozvrhu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <!-- Material design -->
+    <link rel="stylesheet" href="css/mdb.min.css" />
+
+    <!-- Javascript -->
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/mdb.min.js"></script>
+    <script src="js/tools.js"></script>
+</head>
+<body onload="checkForLSAlert(); loadSavedPlanes(); setButtonHrefs();">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark indigo">
+            <a class="navbar-brand" href="#">Plánovač</a>
+        </nav>
+    </header>
+
+    <noscript>
+        <div class="alert alert-danger" role="alert">
+            Vypadáto, že máte vypnutý JavaScript, nebo ho váš prohlížeč neumí.
+            Zapněte JavaScript, nebo si pořiďte lepší prohlížeč. Můžete zkusit třeba
+            <a href="https://www.google.com/chrome/index.html">Google Chrome</a>.
+            <br />
+            <hr />
+            <strong style="font-size: 1.3em;">Bez JavaScriptu tato stránka nefunguje!</strong>
+        </div>
+    </noscript>
+
+    <div class="alert alert-info alert-dismissible fade show" id="localStorageAlert" role="alert">
+        <p>
+            Používáme LocalStorage. To je něco jako <a href="https://cs.wikipedia.org/wiki/HTTP_cookie">Cookie</a>.
+            Používáme to k tomu, abychom věděli, že jste četli tuto zprávu a abyste mohli ukládat své rozpracované plány a později je editovat.
+            <br />
+            Pokud stránku okamžitě neopustíte, souhlasíte s tím, že je můžeme LocalStorage používat.
+        </p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <main class="mt-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-4">
+                    <h1 class="h1">Nový plán</h1>
+                    <hr />
+                    <p>
+                        Vytvořte nový plán, naklikejte studenty a nechte
+                        program, aby vytvořil ideální rozvrh.
+                    </p>
+                    <button type="button" class="btn btn-primary create-new-plan-button">Vytvořit</button>
+                </div>
+
+
+                <div class="col-md-6 mb-4">
+                    <h1 class="h1">Načíst plán</h1>
+                    <hr />
+                    <p>
+                        Načtěte rozpracovaný plán, upravte hodnoty a nechte
+                        program, aby vytvořil ještě lepší rozvrh.
+                    </p>
+                    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#saved-plans">Zobrazit uložené plány</button>
+                    <div id="saved-plans" class="collapse">
+                        <!-- If there is something to load, this card will be removed by JS -->
+                        <div class="card card-body" id="empty-load">
+                            Zatím tu nic není. Zkuste vytvořit nový plán.
+                            <button type="button" class="btn btn-primary create-new-plan-button">Vytvořit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
