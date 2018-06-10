@@ -32,6 +32,7 @@
             this.NewUserButton = new System.Windows.Forms.Button();
             this.EditUserButton = new System.Windows.Forms.Button();
             this.StartButton = new System.Windows.Forms.Button();
+            this.ResultRichTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // UsersListBox
@@ -66,16 +67,27 @@
             // 
             this.StartButton.Location = new System.Drawing.Point(139, 386);
             this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(169, 23);
+            this.StartButton.Size = new System.Drawing.Size(303, 23);
             this.StartButton.TabIndex = 3;
             this.StartButton.Text = "Spustit program";
             this.StartButton.UseVisualStyleBackColor = true;
+            this.StartButton.Click += new System.EventHandler(this.StartButton_Click);
+            // 
+            // ResultRichTextBox
+            // 
+            this.ResultRichTextBox.Location = new System.Drawing.Point(138, 12);
+            this.ResultRichTextBox.Name = "ResultRichTextBox";
+            this.ResultRichTextBox.ReadOnly = true;
+            this.ResultRichTextBox.Size = new System.Drawing.Size(304, 368);
+            this.ResultRichTextBox.TabIndex = 4;
+            this.ResultRichTextBox.Text = "";
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(320, 411);
+            this.ClientSize = new System.Drawing.Size(453, 411);
+            this.Controls.Add(this.ResultRichTextBox);
             this.Controls.Add(this.StartButton);
             this.Controls.Add(this.EditUserButton);
             this.Controls.Add(this.NewUserButton);
@@ -96,5 +108,6 @@
         private System.Windows.Forms.Button NewUserButton;
         private System.Windows.Forms.Button EditUserButton;
         private System.Windows.Forms.Button StartButton;
+        private System.Windows.Forms.RichTextBox ResultRichTextBox;
     }
 }

@@ -12,17 +12,17 @@ namespace ConsoleStudentSchedulerTest
     {
         static void Main(string[] args)
         {
-            /*Flow flow = new Flow(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }),
+            Flow flow = new Flow(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }),
                 new List<User>()
                 {
                     new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 15 * 60, 0, 0, 0, 0 }, new int[] { 16 * 60, 0, 0, 0, 0 }),
                     new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] {18 * 60, 0, 0, 0, 0 }),
                     new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 12 * 60, 0, 0, 0, 0 }, new int[] { 14 * 60, 0, 0, 0, 0 }),
                     new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 0, 0, 0, 0, 0 }, new int[] { 23 * 60 + 59, 0, 0, 0, 0 })
-                });*/
+                });
 
             // Randomly generated input
-            var teacher = new User("Teacher", new bool[] { true, true, true, true, true }, new int[] { 10 * 60, 10 * 60, 10 * 60, 10 * 60, 10 * 60 }, new int[] { 18 * 60, 18 * 60, 18 * 60, 18 * 60, 18 * 60 });
+            /*var teacher = new User("Teacher", new bool[] { true, true, true, true, true }, new int[] { 10 * 60, 10 * 60, 10 * 60, 10 * 60, 10 * 60 }, new int[] { 18 * 60, 18 * 60, 18 * 60, 18 * 60, 18 * 60 });
             // Generate 30 students
             Random rnd = new Random();
             List<User> students = new List<User>();
@@ -32,7 +32,7 @@ namespace ConsoleStudentSchedulerTest
                 int[] timesTo = new int[] { rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60), rnd.Next(12 * 60, 18 * 60) };
                 students.Add(new User("Student " + i, new bool[] { true, true, true, true, true }, timesFrom, timesTo));
             }
-            Flow flow = new Flow(teacher, students);
+            Flow flow = new Flow(teacher, students);*/
 
 
             // Alter flow
