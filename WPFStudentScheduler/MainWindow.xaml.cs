@@ -20,9 +20,35 @@ namespace WPFStudentScheduler
     /// </summary>
     public partial class MainWindow : Window
     {
+        private StackPanel[] daysPanels;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Generate result view
+            string[] days = "Pondělí Úterý Středa Čtvrtek Pátek".Split(' ');
+            StackPanel container = ResultStackPanel;
+            daysPanels = new StackPanel[5];
+            for (int i = 0; i < days.Length; i++)
+            {
+                StackPanel dayContainer = new StackPanel();
+                dayContainer.Children.Add(new TextBlock() { FontSize = 25, Text = days[i], TextAlignment = TextAlignment.Center });
+                container.Children.Add(dayContainer);
+                daysPanels[i] = dayContainer;
+
+                if (i != days.Length - 1)
+                    container.Children.Add(new Separator());
+            }
         }
+
+        public void InitializeNewStudentDialog()
+        {
+
+        }
+
+        #region Event Handlers
+
+        #endregion
     }
 }

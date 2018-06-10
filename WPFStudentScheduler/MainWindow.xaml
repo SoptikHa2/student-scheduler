@@ -7,6 +7,25 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Name="SettingsStackPanel" Grid.RowSpan="2">
+            <DockPanel Name="SettingsTeacher0Panel">
+                <TextBlock Margin="10" FontSize="20">Učitel</TextBlock>
+                <Button Name="SettingsTeacher0Button" Padding="10" FontSize="16" DockPanel.Dock="Right">Nastavit hodiny</Button>
+            </DockPanel>
+            <DockPanel Name="AddNewStudent">
+                <Button Name="AddNewStudentButton" Padding="10" FontSize="18" Margin="0, 20, 0, 0">Nový žák</Button>
+            </DockPanel>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Name="ResultScrollViewer">
+            <StackPanel Name="ResultStackPanel">
+                
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
