@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StudentScheduler.AppLogic.NetworkFlow;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace WPFStudentScheduler
     public partial class MainWindow : Window
     {
         private StackPanel[] daysPanels;
+        private Flow flow;
 
         public MainWindow()
         {
