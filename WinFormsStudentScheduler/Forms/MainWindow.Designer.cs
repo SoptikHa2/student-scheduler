@@ -1,6 +1,6 @@
-﻿namespace WinFormsStudentScheduler
+﻿namespace WinFormsStudentScheduler.Forms
 {
-    partial class MainForm
+    partial class MainWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -28,24 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            // 
-            // MainForm
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(363, 363);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "MainForm";
-            this.ShowIcon = false;
-            this.Text = "Návrhář rozvrhu";
-            this.ResumeLayout(false);
-
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Text = "MainWindow";
         }
 
         #endregion
     }
 }
-
