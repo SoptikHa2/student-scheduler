@@ -51,6 +51,8 @@ namespace WPFStudentScheduler
 
         #region Event Handlers
 
+        private void AddNewStudentButton_Click(object sender, RoutedEventArgs e) => InitializeNewStudentDialog();
+
         #endregion
     }
 }

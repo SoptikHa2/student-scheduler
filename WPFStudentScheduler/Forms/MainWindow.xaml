@@ -18,7 +18,7 @@
                 <Button Name="SettingsTeacher0Button" Padding="10" FontSize="16" DockPanel.Dock="Right">Nastavit hodiny</Button>
             </DockPanel>
             <DockPanel Name="AddNewStudent">
-                <Button Name="AddNewStudentButton" Padding="10" FontSize="18" Margin="0, 20, 0, 0">Nový žák</Button>
+                <Button Name="AddNewStudentButton" Padding="10" FontSize="18" Margin="0, 20, 0, 0" Click="AddNewStudentButton_Click">Nový žák</Button>
             </DockPanel>
         </StackPanel>
 
