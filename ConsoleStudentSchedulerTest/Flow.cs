@@ -37,7 +37,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             for (int day = 0; day < 5; day++)
             {
                 Console.WriteLine($"===================DAY: {day}==============");
-                //BuildGraph(day);
+                BuildGraph(day);
                 Start();
                 var studentsToday = GetResultFromGraph(day);
                 // If there are more then three students today:
@@ -48,7 +48,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
                     // Start again (remove first two students and their times)
-                    //BuildGraph(day, breaks[day], breaks[day] + 50);
+                    BuildGraph(day, breaks[day], breaks[day] + 50);
                     Start();
                     studentsToday = GetResultFromGraph(day);
                 }

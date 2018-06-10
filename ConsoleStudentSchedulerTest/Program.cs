@@ -12,15 +12,17 @@ namespace ConsoleStudentSchedulerTest
     {
         static void Main(string[] args)
         {
-            Flow flow = new Flow(new User("Test Teacher", new bool[5] { true, false, false, false, false }, new int[] { 10 * 60, -1, -1, -1, -1 }, new int[] { 12 * 60, -1, -1, -1, -1 }),
+            Flow flow = new Flow(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }),
                 new List<User>()
                 {
-                    new User("Student 1", new bool[5] { true, false, false, false, false }, new int[] { 10 * 60, -1, -1, -1, -1 }, new int[] { 12 * 60, -1, -1, -1, -1 }),
-                    new User("Student 2", new bool[5] { true, false, false, false, false }, new int[] { 10 * 60 + 10, -1, -1, -1, -1 }, new int[] { 12 * 60 - 10, -1, -1, -1, -1 }),
+                    new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 15 * 60, 0, 0, 0, 0 }, new int[] { 16 * 60, 0, 0, 0, 0 }),
+                    new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] {18 * 60, 0, 0, 0, 0 }),
+                    new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 12 * 60, 0, 0, 0, 0 }, new int[] { 14 * 60, 0, 0, 0, 0 }),
+                    new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 0, 0, 0, 0, 0 }, new int[] { 23 * 60 + 59, 0, 0, 0, 0 })
                 });
             // Alter flow
             
-            flow.DEBUG_ClearNodes();
+            /*flow.DEBUG_ClearNodes();
             Node root = new Node("Input", -1, Node.NodeType.Input);
             Node sink = new Node("Output", -1, Node.NodeType.Output);
             // Create students 1 and 2
@@ -54,10 +56,10 @@ namespace ConsoleStudentSchedulerTest
             t1.InputEdges.Add(s1.OutputEdges[0]);
             t2.InputEdges.Add(s2.OutputEdges[0]);
             t3.InputEdges.Add(s2.OutputEdges[1]);
-            
             // Apply new graph
-            flow.Nodes.AddRange(new List<Node>() { root, s1, s2, t1, t2, t3, tch, sink });
+            flow.Nodes.AddRange(new List<Node>() { root, s1, s2, t1, t2, t3, tch, sink });*/
             // End of alter flow
+
             int[] breaks = flow.GetResult();
 
             Console.WriteLine("Done");
