@@ -12,13 +12,13 @@ namespace ConsoleStudentSchedulerTest
     {
         static void Main(string[] args)
         {
-            Flow flow = new Flow(new User("Test Teacher", new bool[] { true, false, true, false, false }, new int[] { 12 * 60, 0, 14 * 60, 0, 0 }, new int[] { 20 * 60, 0, 19 * 60, 0, 0 }),
+            Flow flow = new Flow(new User("Test Teacher", new bool[] { true, false, false, false, false }, new int[] { 10 * 60, 0, 0, 0, 0 }, new int[] { 22 * 60, 0, 0, 0, 0 }),
                 new List<User>()
                 {
-                    new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 15 * 60, 0, 0, 0, 0 }, new int[] { 16 * 60, 0, 0, 0, 0 }),
-                    new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] {18 * 60, 0, 0, 0, 0 }),
-                    new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 12 * 60, 0, 0, 0, 0 }, new int[] { 14 * 60, 0, 0, 0, 0 }),
-                    new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 0, 0, 0, 0, 0 }, new int[] { 23 * 60 + 59, 0, 0, 0, 0 })
+                    new User("Student 1", new bool[] { true, false, false, false, false }, new int[] { 10 * 60, 0, 0, 0, 0 }, new int[] { 12 * 60, 0, 0, 0, 0 }),
+                    new User("Student 2", new bool[] { true, false, false, false, false }, new int[] { 10 * 60, 0, 0, 0, 0 }, new int[] {10 * 60 + 50, 0, 0, 0, 0 }),
+                    //new User("Student 3", new bool[] { true, false, false, false, false }, new int[] { 11 * 60, 0, 0, 0, 0 }, new int[] { 13 * 60, 0, 0, 0, 0 }),
+                    //new User("Student 4", new bool[] { true, false, false, false, false }, new int[] { 14 * 60, 0, 0, 0, 0 }, new int[] { 18 * 60, 0, 0, 0, 0 })
                 });
 
             // Randomly generated input
@@ -37,7 +37,7 @@ namespace ConsoleStudentSchedulerTest
 
             // Alter flow
 
-            /*flow.DEBUG_ClearNodes();
+            flow.DEBUG_ClearNodes();
             Node root = new Node("Input", -1, Node.NodeType.Input);
             Node sink = new Node("Output", -1, Node.NodeType.Output);
             // Create students 1 and 2
@@ -65,14 +65,20 @@ namespace ConsoleStudentSchedulerTest
             tch.OutputEdges.Add(new TimeChunk(tch, sink));
             sink.InputEdges.Add(tch.OutputEdges[0]);
             // Add paths from students to times
-            s1.OutputEdges.Add(new Edge(1, 0, s1, t1));
+            /*s1.OutputEdges.Add(new Edge(1, 0, s1, t1));
             s2.OutputEdges.Add(new Edge(1, 0, s2, t2));
             s2.OutputEdges.Add(new Edge(1, 0, s2, t3));
             t1.InputEdges.Add(s1.OutputEdges[0]);
             t2.InputEdges.Add(s2.OutputEdges[0]);
-            t3.InputEdges.Add(s2.OutputEdges[1]);
+            t3.InputEdges.Add(s2.OutputEdges[1]);*/
+            s1.OutputEdges.Add(new Edge(1, 0, s1, t1));
+            s1.OutputEdges.Add(new Edge(1, 0, s1, t3));
+            s2.OutputEdges.Add(new Edge(1, 0, s2, t2));
+            t1.InputEdges.Add(s1.OutputEdges[0]);
+            t2.InputEdges.Add(s2.OutputEdges[0]);
+            t3.InputEdges.Add(s1.OutputEdges[1]);
             // Apply new graph
-            flow.Nodes.AddRange(new List<Node>() { root, s1, s2, t1, t2, t3, tch, sink });*/
+            flow.Nodes.AddRange(new List<Node>() { root, s1, s2, t1, t2, t3, tch, sink });
             // End of alter flow
 
             int[] breaks = flow.GetResult();

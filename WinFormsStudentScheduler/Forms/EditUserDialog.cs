@@ -60,8 +60,8 @@ namespace WinFormsStudentScheduler.Forms
             }
 
             Result.daysAvailable = days.Select(d => !d.IsEmpty).ToArray();
-            Result.minutesFromAvailable = days.Select(d => d.IsEmpty ? -1 : d.HoursFrom * 60 + d.MinutesFrom).ToArray();
-            Result.minutesToAvailable = days.Select(d => d.IsEmpty ? -1 : d.HoursTo * 60 + d.MinutesTo).ToArray();
+            Result.minutesFromAvailable = days.Select(d => d.IsEmpty ? 0 : d.HoursFrom * 60 + d.MinutesFrom).ToArray();
+            Result.minutesToAvailable = days.Select(d => d.IsEmpty ? 0 : d.HoursTo * 60 + d.MinutesTo).ToArray();
             Result.name = NameTextInput.Text.Replace(":", "");
 
             if (succ)
@@ -85,10 +85,10 @@ namespace WinFormsStudentScheduler.Forms
         {
             if(input.Trim() == "")
             {
-                HoursFrom = -1;
-                HoursTo = -1;
-                MinutesFrom = -1;
-                MinutesTo = -1;
+                HoursFrom = 0;
+                HoursTo = 0;
+                MinutesFrom = 0;
+                MinutesTo = 0;
                 IsEmpty = true;
                 return;
             }

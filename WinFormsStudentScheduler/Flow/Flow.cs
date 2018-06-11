@@ -161,18 +161,24 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 // Start by getting node from the queue
                 Node node = nodesToProcess.Dequeue();
 
+                if (node.Value == 110)
+                {
+
+                }
+
                 // And get current path
                 List<Node> path = RenderPath(Nodes[0], node, NodesPath);
-                //// Console.WriteLine(String.Join(" -> ", path.Select(x => x.Identifier))); // Debug: write currently rendered path
+                //Console.WriteLine(String.Join(" -> ", path.Select(x => x.Identifier))); // Debug: write currently rendered path
                 // Now we need to get next nodes from this node...
                 var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting output nodes") == 0);
                 // And get previous nodes
                 var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
                 // Filter the nodes to only allow those that are not in alreadyProcessedNodes
                 nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To].Nodes.Count == 0 || (newNode.To.Identifier == "TimeChunk" && NodesPath[newNode.To].SelectedNode == null));
-                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From] == null);
+                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From].Nodes.Count == 0);
                 // Add all these nodes to queue
-                foreach (Node newNode in nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From)))
+                var NodesToGoThrough = nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From));
+                foreach (Node newNode in NodesToGoThrough)
                 {
                     nodesToProcess.Enqueue(newNode);
                     NodesPath[newNode].Nodes.Add(node);
@@ -193,14 +199,14 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             if (output == null || NodesPath[output].Nodes.Count == 0)
             {
                 // No flow
-                // Console.WriteLine("Failure:");
+                Console.WriteLine("Failure:");
                 return false;
             }
             else
             {
-                // Console.WriteLine("Success");
+                Console.WriteLine("Success");
                 ApplyFlow(RenderPath(Nodes[0], output, NodesPath));
-                // Console.WriteLine(this);
+                Console.WriteLine(this);
                 return true;
             }
         }
