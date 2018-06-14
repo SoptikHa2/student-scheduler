@@ -21,11 +21,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             this.Nodes = new List<Node>();
         }
 
-        public void DEBUG_ClearNodes()
-        {
-            Nodes.Clear();
-        }
-
         /// <summary>
         /// Gets result using flows. This method will set student assigned times and return array of minutes, when is break time each day
         /// </summary>
@@ -36,10 +31,8 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
             for (int day = 0; day < 5; day++)
             {
-                Log.Write($"===================DAY: {day}==============", Log.Severity.Info);
                 BuildGraph(day);
                 Start();
-                Log.Write("Done...", Log.Severity.Info);
                 var studentsToday = GetResultFromGraph(day);
                 // If there are more then three students today:
                 if (studentsToday.Count > 3)
@@ -48,8 +41,8 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     for (int i = 0; i < 3; i++) ApplyStudent(studentsToday[i]);
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
-                    // Start again (remove first two students and their times)
-                    BuildGraph(day, breaks[day], breaks[day] + Plan.breakAfterLessonsLength);
+                    // Start again (remove first three students and their times)
+                    BuildGraph(day, breaks[day], breaks[day] + 15);
                     Start();
                     studentsToday = GetResultFromGraph(day);
                 }
@@ -61,8 +54,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 // Apply all students
                 foreach (AssignmentPreview result in studentsToday) ApplyStudent(result);
             }
-
-            Log.Write("Break: " + String.Join(", ", breaks), Log.Severity.Info);
 
             return breaks;
         }
@@ -97,13 +88,13 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     occupiedTimesToday.Where(occTime => Math.Abs(occTime - time) < 50).Count() > 0)
                     continue;
 
-                if (teacher.minutesFromAvailable[day] <= time && teacher.minutesToAvailable[day] - Plan.lessonLength >= time)
+                if (teacher.minutesFromAvailable[day] <= time && teacher.minutesToAvailable[day] - 50 >= time)
                 {
 
                     var studentsAtThisTime = /* Students that have time right now */ students.Where(student => !student.assigned &&
                                                                                                                 student.daysAvailable[day] &&
                                                                                                                 student.minutesFromAvailable[day] <= time &&
-                                                                                                                student.minutesToAvailable[day] - Plan.lessonLength >= time);
+                                                                                                                student.minutesToAvailable[day] - 50 >= time);
 
                     Node timeNode = new Node("Time:" + time, time, Node.NodeType.Default);
                     foreach (User student in studentsAtThisTime)
@@ -166,17 +157,23 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 // Start by getting node from the queue
                 Node node = nodesToProcess.Dequeue();
 
+                if (node.Value == 110)
+                {
+
+                }
+
                 // And get current path
                 List<Node> path = RenderPath(Nodes[0], node, NodesPath);
                 // Now we need to get next nodes from this node...
-                var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting output nodes") == 0);
+                var nextNodes = node.OutputEdges.Where(edge => edge.GetCurrentFlow(path, this) == 0);
                 // And get previous nodes
-                var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
+                var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this) == 1);
                 // Filter the nodes to only allow those that are not in alreadyProcessedNodes
                 nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To].Nodes.Count == 0 || (newNode.To.Identifier == "TimeChunk" && NodesPath[newNode.To].SelectedNode == null));
-                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From] == null);
+                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From].Nodes.Count == 0);
                 // Add all these nodes to queue
-                foreach (Node newNode in nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From)))
+                var NodesToGoThrough = nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From));
+                foreach (Node newNode in NodesToGoThrough)
                 {
                     nodesToProcess.Enqueue(newNode);
                     NodesPath[newNode].Nodes.Add(node);
@@ -184,7 +181,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     if (newNode.Identifier == "TimeChunk")
                     {
                         // Check if the path may go through time chunk
-                        bool canPass = newNode.OutputEdges[0].GetCurrentFlow(path, this, "Adding SelectedNode") == 0;
+                        bool canPass = newNode.OutputEdges[0].GetCurrentFlow(path, this) == 0;
 
                         if (canPass)
                             NodesPath[newNode].SelectedNode = node;
@@ -197,14 +194,11 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             if (output == null || NodesPath[output].Nodes.Count == 0)
             {
                 // No flow
-                Log.Write("Failure:", Log.Severity.Info);
                 return false;
             }
             else
             {
-                Log.Write("Success", Log.Severity.Info);
                 ApplyFlow(RenderPath(Nodes[0], output, NodesPath));
-                Log.Write(this, Log.Severity.Info);
                 return true;
             }
         }
@@ -221,13 +215,14 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 Edge edgeBetweenNodes = prevNode.OutputEdges.Union(prevNode.InputEdges).Where(edge => edge.From == nextNode || edge.To == nextNode).Single();
                 if (!(edgeBetweenNodes is TimeChunk))
                 {
-                    edgeBetweenNodes.SetCurrentFlow(edgeBetweenNodes.GetCurrentFlow(null, null, "Flow Apply") == 0 ? 1 : 0);
+                    edgeBetweenNodes.SetCurrentFlow(edgeBetweenNodes.GetCurrentFlow(null, null) == 0 ? 1 : 0);
                 }
             }
         }
 
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, NodesPathCollection> flowPath)
         {
+            int timeChunkNodeCounter = 0;
             List<Node> path = new List<Node>();
             path.Add(endNode);
 
@@ -237,10 +232,21 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 if (nextNode == null)
                     break;
 
-                // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
-                nextNode = flowPath[nextNode].SelectedNode ?? flowPath[nextNode].Nodes[0];
+                if (nextNode.Identifier == "TimeChunk")
+                {
+                    // We need special behaviour when we operate with TimeChunk
+                    // As nextNode, select OutNode
+                    nextNode = flowPath[nextNode].Nodes[flowPath[nextNode].Nodes.Count - 1 - timeChunkNodeCounter];
+                    timeChunkNodeCounter++;
+                }
+                else
+                {
+                    // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
+                    nextNode = flowPath[nextNode].Nodes[0];
+                }
                 path.Add(nextNode);
             }
+            timeChunkNodeCounter = 0;
 
             path.Reverse();
             return path;
@@ -248,19 +254,12 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private List<AssignmentPreview> GetResultFromGraph(int day)
         {
-            Log.Write("Starting GetResultFromGraph", Log.Severity.Info);
-
             var timeNodes = Nodes.Where(node => node.Value != -1);
 
             var usedTimeNodes = timeNodes.Where(node => node.InputEdges.Count != 0);
 
-            Log.Write("Time nodes total: " + usedTimeNodes.Count(), Log.Severity.Info);
-
-            //var edges = usedTimeNodes.Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
-            var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetResult") == 1).Count() == 1)
-                                     .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetREsult2") == 1).Single());
-
-            Log.Write("Time nodes with selected edge: " + edges.Count(), Log.Severity.Info);
+            var edges = usedTimeNodes.Where(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Count() == 1)
+                                     .Select(node => node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Single());
 
             return edges.Select(edge => new AssignmentPreview()
             {
@@ -305,22 +304,6 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             public int timeStart;
             public int day;
             public User assignedStudent;
-        }
-
-        public override string ToString()
-        {
-            string command = "graph LR\r\n";
-
-            foreach (Node n in Nodes)
-            {
-                foreach (Edge outputEdge in n.OutputEdges)
-                {
-                    command += $"{outputEdge.From.Identifier} -->|{outputEdge.GetCurrentFlow(new Node[0], this, "ThisToString")}| {outputEdge.To.Identifier}\r\n";
-                }
-            }
-
-
-            return command;
         }
     }
 

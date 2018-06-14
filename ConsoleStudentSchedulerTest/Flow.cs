@@ -48,7 +48,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
                     // Start again (remove first two students and their times)
-                    BuildGraph(day, breaks[day], breaks[day] + 50);
+                    BuildGraph(day, breaks[day], breaks[day] + 15);
                     Start();
                     studentsToday = GetResultFromGraph(day);
                 }
@@ -68,17 +68,18 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private void BuildGraph(int day, int bannedTimespanFrom = -1, int bannedTimespanTo = -1)
         {
+            return;
+
             Nodes.Clear();
             // Add root node
             Node root = new Node("Input", -1, Node.NodeType.Input);
             Nodes.Add(root);
 
             // Add all students nodes
-            foreach (User student in students)
+            var studentsToday = students.Where(student => !student.assigned && student.daysAvailable[day]) // Select students that are not assigned and have time today
+                                        .OrderBy(student => student.minutesToAvailable[day] - student.minutesFromAvailable[day]); // And order them by time they have today
+            foreach (User student in studentsToday)
             {
-                if (student.assigned || !student.daysAvailable[day])
-                    continue;
-
                 // TODO: Error when multiple students with same name
                 Node studentNode = new Node("Student:" + student.name, -1, Node.NodeType.Default);
                 AddNodeAfter("Input", studentNode);
@@ -166,6 +167,11 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 // Start by getting node from the queue
                 Node node = nodesToProcess.Dequeue();
 
+                if (node.Value == 110)
+                {
+
+                }
+
                 // And get current path
                 List<Node> path = RenderPath(Nodes[0], node, NodesPath);
                 //Console.WriteLine(String.Join(" -> ", path.Select(x => x.Identifier))); // Debug: write currently rendered path
@@ -175,9 +181,10 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 var previousNodes = node.InputEdges.Where(edge => edge.GetCurrentFlow(path, this, "Getting input nodes") == 1);
                 // Filter the nodes to only allow those that are not in alreadyProcessedNodes
                 nextNodes = nextNodes.Where(newNode => NodesPath[newNode.To].Nodes.Count == 0 || (newNode.To.Identifier == "TimeChunk" && NodesPath[newNode.To].SelectedNode == null));
-                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From] == null);
+                previousNodes = previousNodes.Where(newNode => NodesPath[newNode.From].Nodes.Count == 0);
                 // Add all these nodes to queue
-                foreach (Node newNode in nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From)))
+                var NodesToGoThrough = nextNodes.Select(edge => edge.To).Union(previousNodes.Select(edge => edge.From));
+                foreach (Node newNode in NodesToGoThrough)
                 {
                     nodesToProcess.Enqueue(newNode);
                     NodesPath[newNode].Nodes.Add(node);
@@ -229,6 +236,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, NodesPathCollection> flowPath)
         {
+            int timeChunkNodeCounter = 0;
             List<Node> path = new List<Node>();
             path.Add(endNode);
 
@@ -238,10 +246,21 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 if (nextNode == null)
                     break;
 
-                // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
-                nextNode = flowPath[nextNode].SelectedNode ?? flowPath[nextNode].Nodes[0];
+                if (nextNode.Identifier == "TimeChunk")
+                {
+                    // We need special behaviour when we operate with TimeChunk
+                    // As nextNode, select OutNode
+                    nextNode = flowPath[nextNode].Nodes[flowPath[nextNode].Nodes.Count - 1 - timeChunkNodeCounter];
+                    timeChunkNodeCounter++;
+                }
+                else
+                {
+                    // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
+                    nextNode = flowPath[nextNode].Nodes[0];
+                }
                 path.Add(nextNode);
             }
+            timeChunkNodeCounter = 0;
 
             path.Reverse();
             return path;

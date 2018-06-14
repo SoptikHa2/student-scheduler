@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentScheduler", "Student
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleStudentSchedulerTest", "..\ConsoleStudentSchedulerTest\ConsoleStudentSchedulerTest.csproj", "{A55151A7-F63B-4195-8FDC-B62F846C591B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsStudentScheduler", "..\WinFormsStudentScheduler\WinFormsStudentScheduler.csproj", "{47C65F7D-5571-43AF-9D1F-5EAC0B6F1E7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A55151A7-F63B-4195-8FDC-B62F846C591B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47C65F7D-5571-43AF-9D1F-5EAC0B6F1E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C65F7D-5571-43AF-9D1F-5EAC0B6F1E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C65F7D-5571-43AF-9D1F-5EAC0B6F1E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C65F7D-5571-43AF-9D1F-5EAC0B6F1E7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
