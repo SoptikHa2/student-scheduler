@@ -42,7 +42,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                     for (int i = 0; i < 3; i++) ApplyStudent(studentsToday[i]);
                     // Disable minutes and record break time
                     breaks[day] = studentsToday[2].timeStart + 50;
-                    // Start again (remove first two students and their times)
+                    // Start again (remove first three students and their times)
                     BuildGraph(day, breaks[day], breaks[day] + 15);
                     Start();
                     studentsToday = GetResultFromGraph(day);
@@ -230,6 +230,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
 
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, NodesPathCollection> flowPath)
         {
+            int timeChunkNodeCounter = 0;
             List<Node> path = new List<Node>();
             path.Add(endNode);
 
@@ -239,10 +240,21 @@ namespace StudentScheduler.AppLogic.NetworkFlow
                 if (nextNode == null)
                     break;
 
-                // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
-                nextNode = flowPath[nextNode].SelectedNode ?? flowPath[nextNode].Nodes[0];
+                if (nextNode.Identifier == "TimeChunk")
+                {
+                    // We need special behaviour when we operate with TimeChunk
+                    // As nextNode, select OutNode
+                    nextNode = flowPath[nextNode].Nodes[flowPath[nextNode].Nodes.Count - 1 - timeChunkNodeCounter];
+                    timeChunkNodeCounter++;
+                }
+                else
+                {
+                    // As nextNode, select either SelectedNode, or, if it is null, first element of Nodes list
+                    nextNode = flowPath[nextNode].Nodes[0];
+                }
                 path.Add(nextNode);
             }
+            timeChunkNodeCounter = 0;
 
             path.Reverse();
             return path;

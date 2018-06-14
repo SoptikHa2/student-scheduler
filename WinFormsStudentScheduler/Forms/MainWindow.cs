@@ -51,6 +51,8 @@ namespace WinFormsStudentScheduler.Forms
             {
                 students.Add(UsersListBox.Items[i] as User);
             }
+            // Remove previous results from students
+            students.ForEach(student => { student.assigned = false; student.assignedDay = -1; student.assignedMinutes = -1; });
 
             Flow f = new Flow(UsersListBox.Items[0] as User, students);
 
@@ -60,13 +62,23 @@ namespace WinFormsStudentScheduler.Forms
 
         private void DisplayResult(int[] breaks, IEnumerable<User> students)
         {
+            students = students.OrderBy(student => student.assignedMinutes);
+
             RichTextBox target = ResultRichTextBox;
+            target.Clear();
 
             Font headline = new Font("Segoe UI", 20);
             Font italic = new Font("Segoe UI", 12, FontStyle.Italic);
             Font regular = new Font("Segoe UI", 12);
 
             string[] days = "Pondělí Úterý Středa Čtvrtek Pátek".Split(' ');
+
+            // Write all unpossed students
+            var unpossedStudents = students.Where(student => !student.assigned);
+            if(unpossedStudents.Count() > 0)
+            {
+                AddTextLine(target, "Následující studenty se nepodařilo umístit: " + String.Join(", ", unpossedStudents), regular);
+            }
 
             for (int i = 0; i < 5; i++)
             {
@@ -85,6 +97,7 @@ namespace WinFormsStudentScheduler.Forms
                         if (!breakUsed && todayFrom > breaks[i])
                         {
                             AddTextLine(target, $"({ConvertMinutesToText(breaks[i])}-{ConvertMinutesToText(breaks[i] + 15)})  Přestávka", italic);
+                            breakUsed = true;
                         }
                         AddTextLine(target, $"({ConvertMinutesToText(student.assignedMinutes)}-{ConvertMinutesToText(student.assignedMinutes + 50)}) {student.name}", regular);
                     }

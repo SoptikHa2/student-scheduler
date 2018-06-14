@@ -235,16 +235,9 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             }
         }
 
-        private static int debugcounter = 18;
         private List<Node> RenderPath(Node rootNode, Node endNode, Dictionary<Node, NodesPathCollection> flowPath)
         {
             int timeChunkNodeCounter = 0;
-
-            if (--debugcounter == 0)
-            {
-
-            }
-
             List<Node> path = new List<Node>();
             path.Add(endNode);
 
