@@ -14,11 +14,13 @@ namespace WinFormsStudentScheduler.Forms
     public partial class EditUserDialog : Form
     {
         public User Result;
+        private bool canRemove;
 
-        public EditUserDialog(User user = null)
+        public EditUserDialog(bool canRemove = true, User user = null)
         {
             InitializeComponent();
 
+            this.canRemove = canRemove;
             if (user != null)
             {
                 Result = user;
@@ -32,6 +34,8 @@ namespace WinFormsStudentScheduler.Forms
             }
             else
                 Result = new User("", null, null, null);
+
+            RemoveStudentButton.Enabled = canRemove;
         }
 
         private void OKButton_Click(object sender, EventArgs e)
@@ -74,6 +78,15 @@ namespace WinFormsStudentScheduler.Forms
         {
             DialogResult = DialogResult.Cancel;
         }
+
+        private void RemoveStudentButton_Click(object sender, EventArgs e)
+        {
+            if (canRemove)
+            {
+                Result = null;
+                DialogResult = DialogResult.No;
+            }
+        }
     }
 
     struct TimeForDay
@@ -83,7 +96,7 @@ namespace WinFormsStudentScheduler.Forms
 
         public TimeForDay(string input)
         {
-            if(input.Trim() == "")
+            if (input.Trim() == "")
             {
                 HoursFrom = 0;
                 HoursTo = 0;
@@ -97,7 +110,7 @@ namespace WinFormsStudentScheduler.Forms
             ft = ft.Select(x => x.Trim()).ToArray();
             var sp = ft.SelectMany(f => f.Split(':').Select(x => x.Trim()));
             var tms = sp.Select(s => int.Parse(s)).ToArray();
-            if(tms[0] > 23 || tms[2] > 23 || tms[1] > 59 || tms[3] > 59)
+            if (tms[0] > 23 || tms[2] > 23 || tms[1] > 59 || tms[3] > 59)
             {
                 throw new ArgumentOutOfRangeException();
             }

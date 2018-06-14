@@ -36,11 +36,16 @@ namespace WinFormsStudentScheduler.Forms
             if (UsersListBox.SelectedItem == null)
                 return;
 
-            var dialog = new EditUserDialog(UsersListBox.SelectedItem as User);
+            var dialog = new EditUserDialog(UsersListBox.SelectedIndex != 0, UsersListBox.SelectedItem as User);
 
-            if (dialog.ShowDialog() == DialogResult.OK)
+            DialogResult result = dialog.ShowDialog();
+            if (result == DialogResult.OK)
             {
                 UsersListBox.Items[UsersListBox.SelectedIndex] = dialog.Result;
+            }
+            else if (result == DialogResult.No) // Remove student
+            {
+                UsersListBox.Items.Remove(UsersListBox.SelectedItem);
             }
         }
 
@@ -75,7 +80,7 @@ namespace WinFormsStudentScheduler.Forms
 
             // Write all unpossed students
             var unpossedStudents = students.Where(student => !student.assigned);
-            if(unpossedStudents.Count() > 0)
+            if (unpossedStudents.Count() > 0)
             {
                 AddTextLine(target, "Následující studenty se nepodařilo umístit: " + String.Join(", ", unpossedStudents), regular);
             }

@@ -44,6 +44,7 @@
             this.InputST = new System.Windows.Forms.TextBox();
             this.InputCT = new System.Windows.Forms.TextBox();
             this.InputPA = new System.Windows.Forms.TextBox();
+            this.RemoveStudentButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -117,7 +118,7 @@
             // 
             this.OKButton.Location = new System.Drawing.Point(12, 238);
             this.OKButton.Name = "OKButton";
-            this.OKButton.Size = new System.Drawing.Size(85, 23);
+            this.OKButton.Size = new System.Drawing.Size(68, 23);
             this.OKButton.TabIndex = 7;
             this.OKButton.Text = "OK";
             this.OKButton.UseVisualStyleBackColor = true;
@@ -126,9 +127,9 @@
             // CancelButton
             // 
             this.CancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.CancelButton.Location = new System.Drawing.Point(144, 238);
+            this.CancelButton.Location = new System.Drawing.Point(162, 238);
             this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(85, 23);
+            this.CancelButton.Size = new System.Drawing.Size(67, 23);
             this.CancelButton.TabIndex = 8;
             this.CancelButton.Text = "Zrušit";
             this.CancelButton.UseVisualStyleBackColor = true;
@@ -188,12 +189,24 @@
             this.InputPA.Size = new System.Drawing.Size(157, 20);
             this.InputPA.TabIndex = 15;
             // 
+            // RemoveStudentButton
+            // 
+            this.RemoveStudentButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.RemoveStudentButton.Location = new System.Drawing.Point(86, 238);
+            this.RemoveStudentButton.Name = "RemoveStudentButton";
+            this.RemoveStudentButton.Size = new System.Drawing.Size(70, 23);
+            this.RemoveStudentButton.TabIndex = 16;
+            this.RemoveStudentButton.Text = "Vymazat";
+            this.RemoveStudentButton.UseVisualStyleBackColor = true;
+            this.RemoveStudentButton.Click += new System.EventHandler(this.RemoveStudentButton_Click);
+            // 
             // EditUserDialog
             // 
             this.AcceptButton = this.OKButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(242, 273);
+            this.Controls.Add(this.RemoveStudentButton);
             this.Controls.Add(this.InputPA);
             this.Controls.Add(this.InputCT);
             this.Controls.Add(this.InputST);
@@ -241,5 +254,6 @@
         private System.Windows.Forms.TextBox InputST;
         private System.Windows.Forms.TextBox InputCT;
         private System.Windows.Forms.TextBox InputPA;
+        private System.Windows.Forms.Button RemoveStudentButton;
     }
 }
