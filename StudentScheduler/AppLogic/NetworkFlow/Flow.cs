@@ -75,11 +75,10 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             Nodes.Add(root);
 
             // Add all students nodes
-            foreach (User student in students)
+            var studentsToday = students.Where(student => !student.assigned && student.daysAvailable[day]) // Select students that are not assigned and have time today
+                            .OrderBy(student => student.minutesToAvailable[day] - student.minutesFromAvailable[day]); // And order them by time they have today
+            foreach (User student in studentsToday)
             {
-                if (student.assigned || !student.daysAvailable[day])
-                    continue;
-
                 // TODO: Error when multiple students with same name
                 Node studentNode = new Node("Student:" + student.name, -1, Node.NodeType.Default);
                 AddNodeAfter("Input", studentNode);

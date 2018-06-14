@@ -21,25 +21,16 @@ namespace StudentScheduler.AppLogic.NetworkFlow
         /// <param name="currentPath"></param>
         /// <param name="flow"></param>
         /// <returns>Number of nodes that block current path</returns>
-        public override int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow, string info)
+        public override int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow)
         {
-            if (info == "ThisToString")
-                return int.MinValue;
-
             int blockingNodes = -1;
-            try
-            {
-                // Time node, that I want to go through
-                Node baseNode = currentPath.ToList()[currentPath.Count() - 1];
-                var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null, "GetCurrentFlow") == 1).Count() == 1).ToList();
-                allTimeNodes.Union(currentPath.Where(node => node.Value != -1 && node != baseNode));
-                blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
-            }catch(Exception ex)
-            {
-                Console.WriteLine("BlockingNodes Failed! Info: " + info);
-                Console.WriteLine(ex);
-                throw ex;
-            }
+
+            // Time node, that I want to go through
+            Node baseNode = currentPath.ToList()[currentPath.Count() - 1];
+            var allTimeNodes = flow.Nodes.Where(node => node.Value != -1 && node != baseNode && node.InputEdges.Where(edge => edge.GetCurrentFlow(null, null) == 1).Count() == 1).ToList();
+            allTimeNodes.Union(currentPath.Where(node => node.Value != -1 && node != baseNode));
+            blockingNodes = GetBlockingNodes(allTimeNodes, baseNode);
+
             return blockingNodes;
         }
 

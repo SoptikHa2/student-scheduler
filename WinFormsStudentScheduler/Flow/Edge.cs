@@ -21,7 +21,7 @@ namespace StudentScheduler.AppLogic.NetworkFlow
             To = to;
         }
 
-        public virtual int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow, string info)
+        public virtual int GetCurrentFlow(IEnumerable<Node> currentPath, Flow flow)
         {
             return currentFlow;
         }
